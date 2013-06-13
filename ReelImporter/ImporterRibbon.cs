@@ -15,12 +15,18 @@ namespace ReelImporter
         private FolderSelection select;
         private HeaderImport import;
         private Excel.Window excelWin;
+        private HelpSite help;
+
         private void ImporterRibbon_Load(object sender, RibbonUIEventArgs e)
         {
             this.select = new FolderSelection();
             this.select.ribbon = this;
             this.excelWin = Globals.Program.Application.ActiveWindow;
             this.import = new HeaderImport(excelWin);
+            this.importButton.Site = help;
+            this.calcsButton.Site = help;
+            this.selectButton.Site = help;
+            this.selectCalcsButton.Site = help;
         }
 
         private void selectButton_Click(object sender, RibbonControlEventArgs e)
@@ -36,6 +42,24 @@ namespace ReelImporter
         public void EnableImport(bool flag)
         {
             this.importButton.Enabled = flag;
+            this.selectCalcsButton.Enabled = flag;
+            if (!flag)
+                this.calcsButton.Enabled = flag;
+        }
+
+        private void selectCalcsButton_Click(object sender, RibbonControlEventArgs e)
+        {
+            
+        }
+
+        public void EnableCalcImport(bool flag)
+        {
+            this.calcsButton.Enabled = flag;
+        }
+
+        private void calcsButton_Click(object sender, RibbonControlEventArgs e)
+        {
+
         }
     }
 }

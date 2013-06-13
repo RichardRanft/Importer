@@ -38,6 +38,8 @@
             this.importGroup = this.Factory.CreateRibbonGroup();
             this.selectButton = this.Factory.CreateRibbonButton();
             this.importButton = this.Factory.CreateRibbonButton();
+            this.selectCalcsButton = this.Factory.CreateRibbonButton();
+            this.calcsButton = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.importGroup.SuspendLayout();
             // 
@@ -52,6 +54,8 @@
             // 
             this.importGroup.Items.Add(this.selectButton);
             this.importGroup.Items.Add(this.importButton);
+            this.importGroup.Items.Add(this.selectCalcsButton);
+            this.importGroup.Items.Add(this.calcsButton);
             this.importGroup.Label = "Reel Import";
             this.importGroup.Name = "importGroup";
             // 
@@ -61,6 +65,7 @@
             this.selectButton.Label = "Choose Folder";
             this.selectButton.Name = "selectButton";
             this.selectButton.OfficeImageId = "OpenFolder";
+            this.selectButton.ScreenTip = "Select the folder that contains the source reels.";
             this.selectButton.ShowImage = true;
             this.selectButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.selectButton_Click);
             // 
@@ -71,8 +76,31 @@
             this.importButton.Label = "Import Reels";
             this.importButton.Name = "importButton";
             this.importButton.OfficeImageId = "ImportTextFile";
+            this.importButton.ScreenTip = "Import reel data from source files.";
             this.importButton.ShowImage = true;
             this.importButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.importButton_Click);
+            // 
+            // selectCalcsButton
+            // 
+            this.selectCalcsButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.selectCalcsButton.Enabled = false;
+            this.selectCalcsButton.Label = "Select Calcs";
+            this.selectCalcsButton.Name = "selectCalcsButton";
+            this.selectCalcsButton.OfficeImageId = "OpenAttachedMasterPage";
+            this.selectCalcsButton.ScreenTip = "Select an Excel file that contains a reel set.";
+            this.selectCalcsButton.ShowImage = true;
+            this.selectCalcsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.selectCalcsButton_Click);
+            // 
+            // calcsButton
+            // 
+            this.calcsButton.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.calcsButton.Enabled = false;
+            this.calcsButton.Label = "Import Calcs";
+            this.calcsButton.Name = "calcsButton";
+            this.calcsButton.OfficeImageId = "ImportExcel";
+            this.calcsButton.ScreenTip = "Import reel data from document.";
+            this.calcsButton.ShowImage = true;
+            this.calcsButton.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.calcsButton_Click);
             // 
             // ImporterRibbon
             // 
@@ -93,6 +121,8 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup importGroup;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton selectButton;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton importButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton calcsButton;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton selectCalcsButton;
     }
 
     partial class ThisRibbonCollection

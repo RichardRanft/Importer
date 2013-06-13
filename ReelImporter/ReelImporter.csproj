@@ -34,10 +34,10 @@
     <PublishUrl>\\LVSERVER\TableMaster\EGM_AMERICA\Excel Add-ins\Reel Importer\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>1.0.0.11</ApplicationVersion>
+    <ApplicationVersion>1.0.0.15</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
-    <UpdateInterval>7</UpdateInterval>
+    <UpdateInterval>0</UpdateInterval>
     <UpdateIntervalUnits>days</UpdateIntervalUnits>
     <ProductName>ReelImporter</ProductName>
     <PublisherName>SHFL Entertainment</PublisherName>
@@ -202,6 +202,7 @@
       <DependentUpon>FolderSelection.cs</DependentUpon>
     </Compile>
     <Compile Include="HeaderImport.cs" />
+    <Compile Include="Help.cs" />
     <Compile Include="ImporterRibbon.cs">
       <SubType>Component</SubType>
     </Compile>

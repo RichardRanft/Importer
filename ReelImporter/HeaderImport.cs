@@ -25,6 +25,8 @@ namespace ReelImporter
         private String tempLine;
         private String[] parsedRow;
         private bool moveSheet;
+        private Excel.Workbook target;
+        private int currentReelSet;
 
         public HeaderImport(Excel.Window window)
         {
@@ -45,9 +47,10 @@ namespace ReelImporter
             // catch that here.
             if (excelWin == null)
                 excelWin = Globals.Program.Application.ActiveWindow;
-
+            target = Globals.Program.Application.ActiveWorkbook;
             // get a list of all header files in the selected directory
             currentFolder = folder;
+            currentReelSet = 7;
             fileList = Directory.GetFiles(currentFolder, "*.h");
             if (fileList.Length == 0)
             {
@@ -58,11 +61,14 @@ namespace ReelImporter
             // run down the list and import each file into an Excel sheet
             for (int index = 0; index < fileList.Length; index++)
             {
+                Globals.Program.Application.ScreenUpdating = false;
                 copyMatchSheet(fileList.GetValue(index).ToString());
                 copyPaySheet(fileList.GetValue(index).ToString());
                 Excel.Worksheet temp = importFile(fileList.GetValue(index).ToString(), (index + 1).ToString());
                 updateMatchLinks(temp, fileList.GetValue(index).ToString());
                 updatePayLinks(temp, fileList.GetValue(index).ToString());
+                Globals.Program.Application.ScreenUpdating = true;
+                currentReelSet++;
             }
         }
 
@@ -72,14 +78,23 @@ namespace ReelImporter
             // Reel columns start at Q8
             // This also needs to update all links to point to the new target worksheet.
             String matchSheetName = stripFileName(name) + " Match";
-            Excel.Workbook active = Globals.Program.Application.ActiveWorkbook;
             Excel.Worksheet matchSheet = null;
-            // find the parsed reel worksheet
-            for (int i = 1; i <= active.Sheets.Count; i++)
+            Excel.Worksheet info = target.Worksheets[1];
+            if (info.Name == "Game Info")
             {
-                if (active.Worksheets[i].Name == matchSheetName)
+                String link = "='" + matchSheetName + "'!$G$4";
+                String nameCell = "B" + currentReelSet.ToString();
+                String linkCell = "C" + currentReelSet.ToString();
+                info.Range[nameCell].Value = matchSheetName;
+                info.Range[linkCell].Value = link;
+            }
+
+            // find the parsed reel worksheet
+            for (int i = 1; i <= target.Sheets.Count; i++)
+            {
+                if (target.Worksheets[i].Name == matchSheetName)
                 {
-                    matchSheet = active.Worksheets[i];
+                    matchSheet = target.Worksheets[i];
                 }
             }
             // copy the parsed reels to the match sheet
@@ -116,6 +131,25 @@ namespace ReelImporter
         private void updatePayLinks(Excel.Worksheet sheet, String name)
         {
             // need to update all links to point to the new target worksheet.
+            // Notes:
+            // Reel columns start at Q8
+            // This also needs to update all links to point to the new target worksheet.
+            String paySheetName = stripFileName(name) + " Pays";
+            Excel.Worksheet paySheet = null;
+            // find the parsed reel worksheet
+            for (int i = 1; i <= target.Sheets.Count; i++)
+            {
+                if (target.Worksheets[i].Name == paySheetName)
+                {
+                    paySheet = target.Worksheets[i];
+                }
+            }
+            // copy the parsed reels to the match sheet
+            copyRange(sheet, paySheet, "A1", "A300", "A6");
+            copyRange(sheet, paySheet, "B1", "B300", "C6");
+            copyRange(sheet, paySheet, "C1", "C300", "E6");
+            copyRange(sheet, paySheet, "D1", "D300", "G6");
+            copyRange(sheet, paySheet, "E1", "E300", "I6");
         }
 
         private void getCalcReels(String filename)
@@ -225,21 +259,20 @@ namespace ReelImporter
         {
             // creates a new worksheet and passes it back
             // first, make sure we're not duplicating worksheets
-            Excel.Workbook active = Globals.Program.Application.ActiveWorkbook;
             int sheetCount = Globals.Program.Application.ActiveWorkbook.Sheets.Count;
             for (int i = 1; i <= sheetCount; i++)
             {
                 // if the sheet exists, pass it out and let the parser update
                 // the contents from the file.
-                if (active.Worksheets[i].Name == name)
+                if (target.Worksheets[i].Name == name)
                 {
                     moveSheet = false;
-                    return active.Worksheets[i];
+                    return target.Worksheets[i];
                 }
             }
             // the sheet does not exist yet, so make a new one and pass it back
             Excel.Worksheet newWorksheet;
-            newWorksheet = active.Worksheets.Add();
+            newWorksheet = target.Worksheets.Add();
             newWorksheet.Name = name;
             return newWorksheet;
         }
@@ -264,10 +297,10 @@ namespace ReelImporter
         private void moveSheetToEnd(Excel.Worksheet sheet)
         {
             // moves the sheet to the end of the workbook
-            int sheetCount = Globals.Program.Application.ActiveWorkbook.Sheets.Count;
+            int sheetCount = target.Sheets.Count;
             try
             {
-                sheet.Move(Type.Missing, Globals.Program.Application.ActiveWorkbook.Sheets[sheetCount]);
+                sheet.Move(Type.Missing, target.Sheets[sheetCount]);
             }
             catch (Exception e)
             {
@@ -277,18 +310,17 @@ namespace ReelImporter
 
         private void copyMatchSheet(String fileName)
         {
-            Excel.Workbook active = Globals.Program.Application.ActiveWorkbook;
             String name = stripFileName(fileName);
             name += " Match";
-            for (int i = 1; i <= active.Sheets.Count; i++)
+            for (int i = 1; i <= target.Sheets.Count; i++)
             {
                 // if the sheet exists, pass it out and let the parser update
                 // the contents from the file.
-                if (active.Worksheets[i].Name == "Match" && !findSheet(name))
+                if (target.Worksheets[i].Name == "Match" && !findSheet(name))
                 {
                     //Excel.Worksheet newWorksheet = active.Worksheets.Add();
-                    active.Worksheets[i].Copy(active.Worksheets[active.Worksheets.Count]);
-                    Excel.Worksheet newWorksheet = active.Worksheets[active.Worksheets.Count - 1];
+                    target.Worksheets[i].Copy(target.Worksheets[target.Worksheets.Count]);
+                    Excel.Worksheet newWorksheet = target.Worksheets[target.Worksheets.Count - 1];
                     newWorksheet.Name = name;
                     moveSheetToEnd(newWorksheet);
                     return;
@@ -298,18 +330,17 @@ namespace ReelImporter
 
         private void copyPaySheet(String fileName)
         {
-            Excel.Workbook active = Globals.Program.Application.ActiveWorkbook;
             String name = stripFileName(fileName);
             name += " Pays";
-            for (int i = 1; i <= active.Sheets.Count; i++)
+            for (int i = 1; i <= target.Sheets.Count; i++)
             {
                 // if the sheet exists, pass it out and let the parser update
                 // the contents from the file.
-                if (active.Worksheets[i].Name == "Pays" && !findSheet(name))
+                if (target.Worksheets[i].Name == "Pays" && !findSheet(name))
                 {
                     //Excel.Worksheet newWorksheet = active.Worksheets.Add();
-                    active.Worksheets[i].Copy(active.Worksheets[active.Worksheets.Count]);
-                    Excel.Worksheet newWorksheet = active.Worksheets[active.Worksheets.Count - 1];
+                    target.Worksheets[i].Copy(target.Worksheets[target.Worksheets.Count]);
+                    Excel.Worksheet newWorksheet = target.Worksheets[target.Worksheets.Count - 1];
                     newWorksheet.Name = name;
                     moveSheetToEnd(newWorksheet);
                     return;
@@ -319,10 +350,9 @@ namespace ReelImporter
 
         private bool findSheet(String sheetName)
         {
-            Excel.Workbook active = Globals.Program.Application.ActiveWorkbook;
-            for (int i = 1; i <= active.Sheets.Count; i++)
+            for (int i = 1; i <= target.Sheets.Count; i++)
             {
-                if (active.Worksheets[i].Name == sheetName)
+                if (target.Worksheets[i].Name == sheetName)
                     return true;
             }
             return false;
