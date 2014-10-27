@@ -223,11 +223,13 @@
     <Compile Include="BallyReelStop.cs" />
     <Compile Include="BallyScatterPayData.cs" />
     <Compile Include="CalcImport.cs" />
+    <Compile Include="LineParseState.cs" />
     <Compile Include="PayParserState.cs" />
     <Compile Include="Reel.cs" />
     <Compile Include="ReelGame.cs" />
     <Compile Include="ReelSet.cs" />
     <Compile Include="ReelStop.cs" />
+    <Compile Include="PaylineDescription.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="FolderSelection.cs">
       <SubType>Form</SubType>

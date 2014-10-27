@@ -14,6 +14,7 @@ namespace ReelImporter
         public String openBrace = "{";
         public String closeBrace = "}";
         public char[] cBrace = { '}' };
+        public char[] comma = { ',' };
         public String arrayEnd = "},";
         public char[] arrayStop = { '}', ',' };
         public char[] doubleBackSlash = { '\\', '\\' };
