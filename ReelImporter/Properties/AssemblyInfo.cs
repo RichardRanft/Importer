@@ -9,9 +9,9 @@ using System.Security;
 [assembly: AssemblyTitle("ReelImporter")]
 [assembly: AssemblyDescription("Import reels from header files for use in match tests.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Shuffle Master, Inc.")]
+[assembly: AssemblyCompany("Bally Technologies")]
 [assembly: AssemblyProduct("ReelImporter")]
-[assembly: AssemblyCopyright("Copyright © Shuffle Master, Inc. 2013")]
+[assembly: AssemblyCopyright("Copyright © Bally Technologies 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
