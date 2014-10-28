@@ -12,7 +12,15 @@ namespace ReelImporter
         private int m_group;
         private int m_id;
         private int m_win;
+        private int m_winLevel;
+        private int m_minBet;
+        private int m_maxBet;
+        private int m_minLines;
+        private int m_maxLines;
+        private int m_validPayLines;
         private List<String> m_flags;
+
+        private bool m_isValid;
 
         public List<String> StopValues
         {
@@ -54,12 +62,37 @@ namespace ReelImporter
             }
         }
 
+        public bool IsValid
+        {
+            get
+            {
+                return m_isValid;
+            }
+        }
+
         public List<String> Flags
         {
             get
             {
                 return m_flags;
             }
+        }
+
+        public PaylineDescription()
+        {
+            m_stopValues = new List<String>();
+            m_betMultiplier = 0;
+            m_group = 0;
+            m_id = 0;
+            m_win = 0;
+            m_winLevel = 0;
+            m_minBet = 0;
+            m_maxBet = 0;
+            m_minLines = 0;
+            m_maxLines = 0;
+            m_validPayLines = 0;
+            m_flags = new List<String>();
+            m_isValid = false;
         }
 
         // {{CWC,CWC,CWC,CWC,CWC},	flags={ PRECOG_SET },xbet=1,		group = 100,	id = 10,	win = 0   }

@@ -4,26 +4,39 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using Excel = Microsoft.Office.Interop.Excel;
+using Office = Microsoft.Office.Core;
+using Microsoft.Office.Tools.Excel;
 
 namespace ReelImporter
 {
     public class BallyLinePayData : BallyPayData
     {
+        private List<PaylineDescription> m_linePays;
         private Utils m_util;
-        private List<PaylineDescription> m_stopSets;
+        private BallyPayType m_type;
+
+        public override BallyPayType Type
+        {
+            get
+            {
+                return m_type;
+            }
+        }
 
         public BallyLinePayData()
         {
             m_util = new Utils();
-            m_stopSets = new List<PaylineDescription>();
+            m_linePays = new List<PaylineDescription>();
+            m_type = BallyPayType.LINEPAY;
         }
 
-        public void Parse(StreamReader inStream, PayParserState parseState)
+        public override void Parse(StreamReader inStream, PayParserState parseState)
         {
             bool lineHasOpenBrace = false;
             bool lineHasCloseBrace = false;
 
-
+            PaylineDescription payline;
             String line = "";
 
             using (inStream)
@@ -126,33 +139,20 @@ namespace ReelImporter
                         }
                     }
 
-                    tmpReel = new BallyReel();
-                    tmpReel.Parse(inStream, line, parseState);
-                    if (parseState.CurrentSetType == ReelSetType.BASEMODREEL)
+                    payline = new PaylineDescription();
+                    payline.Add(line, m_util);
+                    if (parseState.CurrentPayType == BallyPayType.LINEPAY)
                     {
-                        m_baseModReelset.AddReel(tmpReel);
-                        parseState.ResetModifierReel();
-                    }
-
-                    if (parseState.CurrentSetType == ReelSetType.BASEREEL)
-                    {
-                        m_baseReelset.AddReel(tmpReel);
-                        parseState.ResetBaseReel();
-                    }
-
-                    if (parseState.CurrentSetType == ReelSetType.FREEMODREEL)
-                    {
-                        m_freeModReelset.AddReel(tmpReel);
-                        parseState.ResetModifierReel();
-                    }
-
-                    if (parseState.CurrentSetType == ReelSetType.FREEREEL)
-                    {
-                        m_freeReelset.AddReel(tmpReel);
-                        parseState.ResetFreeReel();
+                        m_linePays.Add(payline);
+                        parseState.ResetLinePay();
                     }
                 }
             }
+        }
+
+        protected override void exportPays(String sheetName, Excel.Workbook targetBook)
+        {
+
         }
     }
 }

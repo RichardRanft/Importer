@@ -12,29 +12,15 @@ namespace ReelImporter
 {
     public class BallyReelGame : ReelGame
     {
-        private BallyReelSet m_baseReelset;
-        private BallyReelSet m_freeReelset;
-        private BallyReelSet m_baseModReelset;
-        private BallyReelSet m_freeModReelset;
-        private BallyReelSet m_currentSet;
-
         private ParserState m_parseState;
-
-        private int m_setIndex;
-        private int m_reelWidth;
-        private bool m_isValid;
-        private bool m_hasModifierReels;
-        private bool m_hasFreeReels;
-        private bool m_hasFreeModReels;
-
         private Utils m_util;
 
         public BallyReelGame()
         {
-            m_baseReelset = new BallyReelSet();
-            m_freeReelset = new BallyReelSet();
-            m_baseModReelset = new BallyReelSet();
-            m_freeModReelset = new BallyReelSet();
+            m_baseReelset = (ReelSet)new BallyReelSet();
+            m_freeReelset = (ReelSet)new BallyReelSet();
+            m_baseModReelset = (ReelSet)new BallyReelSet();
+            m_freeModReelset = (ReelSet)new BallyReelSet();
             m_currentSet = null;
 
             m_parseState = new ParserState();
@@ -53,7 +39,7 @@ namespace ReelImporter
         {
             get
             {
-                return m_baseReelset;
+                return (BallyReelSet) m_baseReelset;
             }
             set
             {
@@ -67,7 +53,7 @@ namespace ReelImporter
         {
             get
             {
-                return m_baseModReelset;
+                return (BallyReelSet) m_baseModReelset;
             }
             set
             {
