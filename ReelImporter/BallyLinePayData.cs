@@ -31,13 +31,12 @@ namespace ReelImporter
             m_type = BallyPayType.LINEPAY;
         }
 
-        public override void Parse(StreamReader inStream, PayParserState parseState)
+        public override void Parse(StreamReader inStream, String line, PayParserState parseState)
         {
             bool lineHasOpenBrace = false;
             bool lineHasCloseBrace = false;
 
             PaylineDescription payline;
-            String line = "";
 
             using (inStream)
             {
@@ -67,19 +66,6 @@ namespace ReelImporter
 
                     if (!lineHasOpenBrace && !lineHasCloseBrace)
                         continue;
-
-                    //if ((line.Length > 1) && lineHasOpenBrace)
-                    //{
-                    //    if (!parseState.ReelStart && !parseState.FreeStart && !parseState.ModifierStart)
-                    //    {
-                    //        if (parseState.ReelSetStart && !parseState.LINEPAYSTART)
-                    //            parseState.EnterBaseReel();
-                    //        if (parseState.FreeSetStart && !parseState.LINEPAYSTART)
-                    //            parseState.EnterFreeReel();
-                    //        if (parseState.LINEPAYSTART)
-                    //            parseState.EnterModifierReel();
-                    //    }
-                    //}
 
                     if (lineHasCloseBrace)
                     {

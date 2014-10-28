@@ -129,6 +129,7 @@ namespace ReelImporter
         private int currentReelSet;
         private ParserState m_parseState;
         private BallyReelGame m_gameSet;
+        private BallyGamePays m_gamePays;
 
         private bool moveSheet;
 
@@ -204,6 +205,7 @@ namespace ReelImporter
             }
             if (type == ReelDataType.BALLY)
             {
+                m_gamePays = new BallyGamePays();
                 m_gameSet = new BallyReelGame();
                 importBallyFile(fileList.GetValue(0).ToString(), "1");
             }
@@ -425,7 +427,11 @@ namespace ReelImporter
             String sheetName = trimmedName[end - 1];
 
             StreamReader inputFile = new StreamReader(fileName);
+            m_gamePays.Parse(inputFile);
 
+            inputFile.Close();
+
+            inputFile = new StreamReader(fileName);
             m_gameSet.Parse(inputFile);
             if (m_gameSet.IsValid)
                 m_gameSet.SendToWorksheet(sheetName, target);

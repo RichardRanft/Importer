@@ -16,7 +16,7 @@ namespace ReelImporter
 
         private List<BallyReel> m_reels;
 
-        new public int Count
+        public override int Count
         {
             get
             {
@@ -53,7 +53,7 @@ namespace ReelImporter
             m_reels.Add(reel);
         }
 
-        new public void Clear()
+        public override void Clear()
         {
             m_reels.Clear();
         }
@@ -75,7 +75,7 @@ namespace ReelImporter
             return null;
         }
 
-        new public void SendToWorksheet(Excel.Worksheet targetSheet, String StartCell, bool skipColumns = false, bool fullOutput = false)
+        public override void SendToWorksheet(Excel.Worksheet targetSheet, String StartCell, bool skipColumns = false, bool fullOutput = false)
         {
             // Fill in a set of cells with this reelset's values
             // The skipColumns parameter will skip columns between reels, starting in the target cell.
@@ -107,7 +107,7 @@ namespace ReelImporter
             }
         }
 
-        new public void SendToWorksheet(Excel.Worksheet targetSheet, String StartCell, int startReel, int reelWidth, bool skipColumns = false, bool fullOutput = false)
+        public override void SendToWorksheet(Excel.Worksheet targetSheet, String StartCell, int startReel, int reelWidth, bool skipColumns = false, bool fullOutput = false)
         {
             // Fill in a set of cells with this reelset's values
             // The skipColumns parameter will skip columns between reels, starting in the target cell.

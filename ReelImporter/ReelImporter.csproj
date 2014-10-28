@@ -41,7 +41,7 @@
     <PublishUrl>\\LVSERVER\TableMaster\EGM_AMERICA\Excel Add-ins\Reel Importer\</PublishUrl>
     <InstallUrl />
     <TargetCulture>en</TargetCulture>
-    <ApplicationVersion>2.0.0.1</ApplicationVersion>
+    <ApplicationVersion>2.0.0.4</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>0</UpdateInterval>
@@ -226,6 +226,7 @@
     <Compile Include="LineParseState.cs" />
     <Compile Include="PayParserState.cs" />
     <Compile Include="Reel.cs" />
+    <Compile Include="ReelDescription.cs" />
     <Compile Include="ReelGame.cs" />
     <Compile Include="ReelSet.cs" />
     <Compile Include="ReelStop.cs" />

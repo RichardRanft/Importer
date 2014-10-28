@@ -5,9 +5,9 @@ using System.Text;
 
 namespace ReelImporter
 {
-    class PaylineDescription
+    public class PaylineDescription
     {
-        private List<String> m_stopValues;
+        private List<ReelDescription> m_stopValues;
         private int m_betMultiplier;
         private int m_group;
         private int m_id;
@@ -22,7 +22,7 @@ namespace ReelImporter
 
         private bool m_isValid;
 
-        public List<String> StopValues
+        public List<ReelDescription> StopValues
         {
             get
             {
@@ -80,17 +80,17 @@ namespace ReelImporter
 
         public PaylineDescription()
         {
-            m_stopValues = new List<String>();
-            m_betMultiplier = 0;
-            m_group = 0;
-            m_id = 0;
-            m_win = 0;
-            m_winLevel = 0;
-            m_minBet = 0;
-            m_maxBet = 0;
-            m_minLines = 0;
-            m_maxLines = 0;
-            m_validPayLines = 0;
+            m_stopValues = new List<ReelDescription>();
+            m_betMultiplier = -1;
+            m_group = -1;
+            m_id = -1;
+            m_win = -1;
+            m_winLevel = -1;
+            m_minBet = -1;
+            m_maxBet = -1;
+            m_minLines = -1;
+            m_maxLines = -1;
+            m_validPayLines = -1;
             m_flags = new List<String>();
             m_isValid = false;
         }
@@ -104,16 +104,22 @@ namespace ReelImporter
             List<int> openBraceLoc = new List<int>();
             List<int> closeBraceLoc = new List<int>();
             int position = 0;
+
+            // find our open and close braces
             foreach (Char ch in payline)
             {
+                if (ch == '=')
+                    break; // we're past the reel description, move on
                 if (ch == util.openBrace[0])
                     openBraceLoc.Add(position);
                 if (ch == util.closeBrace[0])
                     closeBraceLoc.Add(position);
+                position++;
             }
             int start, length = 0;
             String temp;
-            String[] parts;
+            ReelDescription desc;
+            // grab brace-enclosed sets - these are reel descriptions
             for(int i = 0; i < (openBraceLoc.Count - 1); i++)
             {
                 start = openBraceLoc[i + 1];
@@ -121,13 +127,28 @@ namespace ReelImporter
                 temp = payline.Substring(start, length);
                 payline = payline.Replace(temp, "");
                 payline.Trim();
-                parts = temp.Split(util.comma);
+                desc = new ReelDescription();
+                desc.Parse(temp, util);
+                m_stopValues.Add(desc);
             }
+            // now grab the payline data
         }
 
         public void Clear()
         {
             m_stopValues.Clear();
+            m_betMultiplier = -1;
+            m_group = -1;
+            m_id = -1;
+            m_win = -1;
+            m_winLevel = -1;
+            m_minBet = -1;
+            m_maxBet = -1;
+            m_minLines = -1;
+            m_maxLines = -1;
+            m_validPayLines = -1;
+            m_flags.Clear();
+            m_isValid = false;
         }
     }
 }

@@ -17,7 +17,7 @@ namespace ReelImporter
             get;
         }
 
-        public abstract void Parse(StreamReader inStream, PayParserState parseState);
+        public abstract void Parse(StreamReader inStream, String line, PayParserState parseState);
 
         protected abstract void exportPays(String sheetName, Excel.Workbook targetBook);
     }

@@ -27,14 +27,16 @@ namespace ReelImporter
         public BallyFreeLinePayData()
         {
             m_freeLinePays = new List<PaylineDescription>();
+            m_util = new Utils();
+            m_type = BallyPayType.FREEGAME_LINEPAY;
         }
 
-        public override void Parse(StreamReader inStream, PayParserState parseState)
+        public override void Parse(StreamReader inStream, String line, PayParserState parseState)
         {
             PaylineDescription payline;
             // ----
             payline = new PaylineDescription();
-            payline.Add(line, m_util);
+            //payline.Add(line, m_util);
             if (parseState.CurrentPayType == BallyPayType.FREEGAME_LINEPAY)
             {
                 m_freeLinePays.Add(payline);

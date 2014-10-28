@@ -12,11 +12,21 @@ namespace ReelImporter
 {
     public class BallyGamePays
     {
+        private BallyLinePayData m_linePays;
+        private BallyScatterPayData m_scatterPays;
+        private BallyFreeLinePayData m_freeLinePays;
+        private BallyFreeScatterPayData m_freeScatterPays;
+        
         private PayParserState m_parseState;
         private Utils m_util;
 
         public BallyGamePays()
         {
+            m_linePays = new BallyLinePayData();
+            m_scatterPays = new BallyScatterPayData();
+            m_freeLinePays = new BallyFreeLinePayData();
+            m_freeScatterPays = new BallyFreeScatterPayData();
+
             m_parseState = new PayParserState();
             m_util = new Utils();
         }
@@ -32,9 +42,6 @@ namespace ReelImporter
         {
             if (m_parseState == null)
                 m_parseState = new PayParserState();
-            bool lineHasOpenBrace = false;
-            bool lineHasCloseBrace = false;
-
             
             String line = "";
 
@@ -58,144 +65,29 @@ namespace ReelImporter
                     if (line == "linepays")
                     {
                         m_parseState.EnterLinePay();
-                        continue;
+                        m_linePays.Parse(inStream, line, m_parseState);
                     }
                     if (line == "freegame_linepays")
                     {
                         m_parseState.EnterFreeLinePay();
-                        continue;
+                        m_freeLinePays.Parse(inStream, line, m_parseState);
                     }
                     if (line == "scatterpays")
                     {
                         m_parseState.EnterScatterPay();
-                        continue;
+                        m_scatterPays.Parse(inStream, line, m_parseState);
                     }
                     if (line == "freegame_scatterpays")
                     {
                         m_parseState.EnterFreeScatterPay();
-                        continue;
+                        m_freeScatterPays.Parse(inStream, line, m_parseState);
                     }
                     if (line == "featuredefs")
                     {
                         break;
                     }
-
-                    if (m_parseState.LinePayStart || m_parseState.FreeLinePayStart || m_parseState.ScatterPayStart || m_parseState.FreeScatterPayStart)
-                    {
-                        // check for braces
-                        if (line == m_util.openBrace)
-                        {
-                            m_parseState.EnterArrayLevel();
-                            continue;
-                        }
-
-                        lineHasOpenBrace = line.Contains(m_util.openBrace);
-                        lineHasCloseBrace = line.Contains(m_util.closeBrace);
-
-                        if (!lineHasOpenBrace && !lineHasCloseBrace)
-                            continue;
-
-                        //if ((line.Length > 1) && lineHasOpenBrace)
-                        //{
-                        //    if (!m_parseState.ReelStart && !m_parseState.FreeStart && !m_parseState.ModifierStart)
-                        //    {
-                        //        if (m_parseState.ReelSetStart && !m_parseState.LINEPAYSTART)
-                        //            m_parseState.EnterBaseReel();
-                        //        if (m_parseState.FreeSetStart && !m_parseState.LINEPAYSTART)
-                        //            m_parseState.EnterFreeReel();
-                        //        if (m_parseState.LINEPAYSTART)
-                        //            m_parseState.EnterModifierReel();
-                        //    }
-                        //}
-
-                        if (lineHasCloseBrace)
-                        {
-                            if (line == m_util.closeBrace)
-                            {
-                                m_parseState.LeaveArrayLevel();
-                                if (m_parseState.LinePayStart)
-                                {
-                                    if (m_parseState.StateEnteredLevel[(int)PayReadState.LINEPAYSTART] == m_parseState.ArrayDepth)
-                                        m_parseState.LeaveLinePay();
-                                }
-                                else if (m_parseState.FreeLinePayStart)
-                                {
-                                    if (m_parseState.StateEnteredLevel[(int)PayReadState.FREEGAME_LINEPAYSTART] == m_parseState.ArrayDepth)
-                                        m_parseState.LeaveFreeLinePay();
-                                }
-                                else if (m_parseState.ScatterPayStart)
-                                {
-                                    if (m_parseState.StateEnteredLevel[(int)PayReadState.SCATTER_PAYSTART] == m_parseState.ArrayDepth)
-                                        m_parseState.LeaveScatterPay();
-                                }
-                                else if (m_parseState.FreeScatterPayStart)
-                                {
-                                    if (m_parseState.StateEnteredLevel[(int)PayReadState.FREEGAME_SCATTER_PAYSTART] == m_parseState.ArrayDepth)
-                                        m_parseState.LeaveFreeScatterPay();
-                                }
-
-                                continue;
-                            }
-
-                            // could be end of a reelstop definition, or moving up a level
-                            if (line == m_util.arrayEnd)
-                            {
-                                m_parseState.LeaveArrayLevel();
-                                if (m_parseState.LinePayStart)
-                                {
-                                    if (m_parseState.StateEnteredLevel[(int)PayReadState.LINEPAYSTART] == m_parseState.ArrayDepth)
-                                        m_parseState.LeaveLinePay();
-                                }
-                                else if (m_parseState.FreeLinePayStart)
-                                {
-                                    if (m_parseState.StateEnteredLevel[(int)PayReadState.FREEGAME_LINEPAYSTART] == m_parseState.ArrayDepth)
-                                        m_parseState.LeaveFreeLinePay();
-                                }
-                                else if (m_parseState.ScatterPayStart)
-                                {
-                                    if (m_parseState.StateEnteredLevel[(int)PayReadState.SCATTER_PAYSTART] == m_parseState.ArrayDepth)
-                                        m_parseState.LeaveScatterPay();
-                                }
-                                else if (m_parseState.FreeScatterPayStart)
-                                {
-                                    if (m_parseState.StateEnteredLevel[(int)PayReadState.FREEGAME_SCATTER_PAYSTART] == m_parseState.ArrayDepth)
-                                        m_parseState.LeaveFreeScatterPay();
-                                }
-
-                                continue;
-                            }
-                        }
-
-                        tmpReel = new BallyReel();
-                        tmpReel.Parse(inStream, line, m_parseState);
-                        if (m_parseState.CurrentSetType == ReelSetType.BASEMODREEL)
-                        {
-                            m_baseModReelset.AddReel(tmpReel);
-                            m_parseState.ResetModifierReel();
-                        }
-
-                        if (m_parseState.CurrentSetType == ReelSetType.BASEREEL)
-                        {
-                            m_baseReelset.AddReel(tmpReel);
-                            m_parseState.ResetBaseReel();
-                        }
-
-                        if (m_parseState.CurrentSetType == ReelSetType.FREEMODREEL)
-                        {
-                            m_freeModReelset.AddReel(tmpReel);
-                            m_parseState.ResetModifierReel();
-                        }
-
-                        if (m_parseState.CurrentSetType == ReelSetType.FREEREEL)
-                        {
-                            m_freeReelset.AddReel(tmpReel);
-                            m_parseState.ResetFreeReel();
-                        }
-                    }
                 }
             }
-            m_isValid = checkValid();
-            m_reelWidth = m_baseReelset.Count;
         }
 
         public void exportPays(String sheetName, Excel.Workbook targetBook)

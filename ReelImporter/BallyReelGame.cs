@@ -12,15 +12,20 @@ namespace ReelImporter
 {
     public class BallyReelGame : ReelGame
     {
+        new private BallyReelSet m_baseReelset;
+        new private BallyReelSet m_freeReelset;
+        new private BallyReelSet m_baseModReelset;
+        new private BallyReelSet m_freeModReelset;
+
         private ParserState m_parseState;
         private Utils m_util;
 
         public BallyReelGame()
         {
-            m_baseReelset = (ReelSet)new BallyReelSet();
-            m_freeReelset = (ReelSet)new BallyReelSet();
-            m_baseModReelset = (ReelSet)new BallyReelSet();
-            m_freeModReelset = (ReelSet)new BallyReelSet();
+            m_baseReelset = new BallyReelSet();
+            m_freeReelset = new BallyReelSet();
+            m_baseModReelset = new BallyReelSet();
+            m_freeModReelset = new BallyReelSet();
             m_currentSet = null;
 
             m_parseState = new ParserState();
@@ -257,8 +262,6 @@ namespace ReelImporter
             List<BallyReelSet> subset = new List<BallyReelSet>();
             BallyReelSet temp;
 
-            // fix this - this gets modifiers for each reel, not a set of modifier reels.
-            // should be index + (set.Count % m_reelWidth) - 1 while index < set.Count / m_reelWidth
             int count = 0;
             int sets = set.Count / m_reelWidth;
             do
