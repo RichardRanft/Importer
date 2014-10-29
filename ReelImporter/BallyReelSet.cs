@@ -13,6 +13,8 @@ namespace ReelImporter
     {
         private Excel.Window excelWin;
         private Excel.Workbook targetBook;
+        private ReelType m_type;
+        private int m_setCount;
 
         private List<BallyReel> m_reels;
 
@@ -33,6 +35,30 @@ namespace ReelImporter
             set
             {
                 m_reels = value;
+            }
+        }
+
+        public ReelType Type
+        {
+            get
+            {
+                return m_type;
+            }
+            set
+            {
+                m_type = value;
+            }
+        }
+
+        public int SetCount
+        {
+            get
+            {
+                return m_setCount;
+            }
+            set
+            {
+                m_setCount = value;
             }
         }
 

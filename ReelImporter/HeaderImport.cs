@@ -427,11 +427,11 @@ namespace ReelImporter
             String sheetName = trimmedName[end - 1];
 
             StreamReader inputFile = new StreamReader(fileName);
-            m_gamePays.Parse(inputFile);
+            //m_gamePays.Parse(inputFile);
 
-            inputFile.Close();
+            //inputFile.Close();
 
-            inputFile = new StreamReader(fileName);
+            //inputFile = new StreamReader(fileName);
             m_gameSet.Parse(inputFile);
             if (m_gameSet.IsValid)
                 m_gameSet.SendToWorksheet(sheetName, target);

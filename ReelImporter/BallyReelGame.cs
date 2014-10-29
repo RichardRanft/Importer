@@ -132,6 +132,7 @@ namespace ReelImporter
         {
             int setIndex = 1;
             m_setIndex = 7;
+
             m_currentSet = m_baseReelset;
             m_currentSet.Clean();
             exportReels(sheetName + "base" + setIndex++.ToString(), targetBook);
@@ -258,23 +259,76 @@ namespace ReelImporter
         {
             if (set.Count < 1)
                 return null;
-
+            List<BallyReelSet> inSet = new List<BallyReelSet>();
             List<BallyReelSet> subset = new List<BallyReelSet>();
             BallyReelSet temp;
 
-            int count = 0;
-            int sets = set.Count / m_reelWidth;
-            do
+            int stride = 0;
+            switch(set.Type)
             {
-                temp = new BallyReelSet();
-                temp.Name = set.Name + (count + 1).ToString() + "_";
-                for (int index = count; index < set.Count; index += sets )
+                case ReelType.NONE:
+                    break;
+                case ReelType.BASEREEL:
+                    stride = 1;
+                    inSet.Add(set);
+                    break;
+                case ReelType.FREEREEL:
+                    temp = new BallyReelSet();
+                    m_freeReelset.SetCount = m_freeReelset.Count / m_baseReelset.Count;
+                    for (int i = 0; i < m_freeReelset.Count / m_freeReelset.SetCount; i++)
+                    {
+                        temp.AddReel(set.Reels[i]);
+                    }
+                    inSet.Add(temp);
+                    temp = new BallyReelSet();
+                    for (int j = m_freeReelset.Count / m_freeReelset.SetCount; j < m_freeReelset.Count; j++)
+                    {
+                        temp.AddReel(set.Reels[j]);
+                    }
+                    inSet.Add(temp);
+                    stride = temp.Count / m_reelWidth;
+                    break;
+                case ReelType.BASEMODREEL:
+                    stride = set.Count / m_reelWidth;
+                    inSet.Add(set);
+                    break;
+                case ReelType.FREEMODREEL:
+                    temp = new BallyReelSet();
+                    m_freeModReelset.SetCount = m_freeModReelset.Count / m_freeReelset.SetCount;
+                    for (int i = 0; i < m_freeModReelset.Count / m_freeReelset.SetCount; i++)
+                    {
+                        temp.AddReel(set.Reels[i]);
+                    }
+                    inSet.Add(temp);
+                    temp = new BallyReelSet();
+                    for (int j = m_freeModReelset.Count / m_freeReelset.SetCount; j < m_freeModReelset.Count; j++)
+                    {
+                        temp.AddReel(set.Reels[j]);
+                    }
+                    inSet.Add(temp);
+                    stride = temp.Count / m_reelWidth;
+                    break;
+            }
+            int sets = inSet.Count;
+            set.SetCount = sets;
+            int subIndex = 1;
+            foreach (BallyReelSet group in inSet)
+            {
+                sets = group.Count / m_reelWidth;
+                int count = 0;
+                do
                 {
-                    temp.AddReel(set.Reels[index]);
-                }
-                subset.Add(temp);
-                count++;
-            } while(count < sets);
+                    temp = new BallyReelSet();
+                    temp.Name = set.Name + (count + 1).ToString() + "_" + subIndex.ToString() + "_";
+                    subIndex++;
+                    for (int index = count; index < group.Count; index += sets)
+                    {
+                        temp.AddReel(group.Reels[index]);
+                    }
+                    subset.Add(temp);
+                    count++;
+                } while (count < sets);
+            }
 
             return subset;
         }
@@ -286,9 +340,13 @@ namespace ReelImporter
             bool lineHasOpenBrace = false;
             bool lineHasCloseBrace = false;
             m_baseReelset.Name = "BR_";
+            m_baseReelset.Type = ReelType.BASEREEL;
             m_freeReelset.Name = "FR_";
+            m_freeReelset.Type = ReelType.FREEREEL;
             m_baseModReelset.Name = "BR_M_";
+            m_baseModReelset.Type = ReelType.BASEMODREEL;
             m_freeModReelset.Name = "FR_M_";
+            m_freeModReelset.Type = ReelType.FREEMODREEL;
             BallyReel tmpReel = new BallyReel();
             String line = "";
 
