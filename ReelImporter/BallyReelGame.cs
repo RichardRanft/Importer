@@ -264,6 +264,7 @@ namespace ReelImporter
             BallyReelSet temp;
 
             int stride = 0;
+            List<int> setStartIndices;
             switch(set.Type)
             {
                 case ReelType.NONE:
@@ -273,19 +274,25 @@ namespace ReelImporter
                     inSet.Add(set);
                     break;
                 case ReelType.FREEREEL:
+                    // need to find out if we have one, two or possibly more freegame sets and divide them up correctly.
+                    // this only works for two sets - it won't even work if there is only one set.
+                    // the same needs to be addressed for freegame modifier reels.
                     temp = new BallyReelSet();
                     m_freeReelset.SetCount = m_freeReelset.Count / m_baseReelset.Count;
-                    for (int i = 0; i < m_freeReelset.Count / m_freeReelset.SetCount; i++)
+                    setStartIndices = new List<int>();
+                    for (int c = 0; c < m_freeReelset.SetCount; c++)
                     {
-                        temp.AddReel(set.Reels[i]);
+                        setStartIndices.Add(c * (m_freeReelset.Count / m_freeReelset.SetCount));
                     }
-                    inSet.Add(temp);
-                    temp = new BallyReelSet();
-                    for (int j = m_freeReelset.Count / m_freeReelset.SetCount; j < m_freeReelset.Count; j++)
+                    for (int i = 0; i < setStartIndices.Count; i++)
                     {
-                        temp.AddReel(set.Reels[j]);
+                        temp = new BallyReelSet();
+                        for (int j = setStartIndices[i]; j < (setStartIndices[i] + (m_freeReelset.Count / m_freeReelset.SetCount)); j++)
+                        {
+                            temp.AddReel(set.Reels[j]);
+                        }
+                        inSet.Add(temp);
                     }
-                    inSet.Add(temp);
                     stride = temp.Count / m_reelWidth;
                     break;
                 case ReelType.BASEMODREEL:
@@ -295,17 +302,20 @@ namespace ReelImporter
                 case ReelType.FREEMODREEL:
                     temp = new BallyReelSet();
                     m_freeModReelset.SetCount = m_freeModReelset.Count / m_freeReelset.SetCount;
-                    for (int i = 0; i < m_freeModReelset.Count / m_freeReelset.SetCount; i++)
+                    setStartIndices = new List<int>();
+                    for (int c = 0; c < m_freeReelset.SetCount; c++)
                     {
-                        temp.AddReel(set.Reels[i]);
+                        setStartIndices.Add(c * (m_freeModReelset.Count / m_freeReelset.SetCount));
                     }
-                    inSet.Add(temp);
-                    temp = new BallyReelSet();
-                    for (int j = m_freeModReelset.Count / m_freeReelset.SetCount; j < m_freeModReelset.Count; j++)
+                    for (int i = 0; i < setStartIndices.Count; i++)
                     {
-                        temp.AddReel(set.Reels[j]);
+                        temp = new BallyReelSet();
+                        for (int j = setStartIndices[i]; j < (setStartIndices[i] + (m_freeModReelset.Count / m_freeReelset.SetCount)); j++)
+                        {
+                            temp.AddReel(set.Reels[j]);
+                        }
+                        inSet.Add(temp);
                     }
-                    inSet.Add(temp);
                     stride = temp.Count / m_reelWidth;
                     break;
             }

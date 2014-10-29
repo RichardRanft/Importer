@@ -163,7 +163,7 @@ namespace ReelImporter
             if ( type == ReelDataType.SHFL ) // Equinox/SLV reel definition header files
                 fileList = Directory.GetFiles(currentFolder, "*.h");
             if ( type == ReelDataType.BALLY ) // Alpha II paytable.cfg file
-                fileList = Directory.GetFiles(currentFolder, "*.cfg");
+                fileList = Directory.GetFiles(currentFolder, "paytable.cfg");
 
             Array.Sort(fileList, comp);
             if (fileList.Length == 0)
