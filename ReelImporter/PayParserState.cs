@@ -56,6 +56,22 @@ namespace ReelImporter
             }
         }
 
+        public bool SymbolStart
+        {
+            get
+            {
+                return m_currentReadState[(int)PayReadState.SYMBOLSTART];
+            }
+        }
+
+        public bool SymbolEnd
+        {
+            get
+            {
+                return m_currentReadState[(int)PayReadState.SYMBOLEND];
+            }
+        }
+
         public bool LinePayStart
         {
             get
@@ -136,9 +152,11 @@ namespace ReelImporter
         {
             m_currentPayType = BallyPayType.NONE;
             m_previousPayType = BallyPayType.NONE;
-            m_currentReadState = new BitArray(13);
-            m_enteredState = new int[9];
+            m_currentReadState = new BitArray(15);
+            m_enteredState = new int[11];
             m_enteredState[(int)PayReadState.NONE] = 0;
+            m_enteredState[(int)PayReadState.SYMBOLSTART] = 0;
+            m_enteredState[(int)PayReadState.SYMBOLEND] = 0;
             m_enteredState[(int)PayReadState.LINEPAYSTART] = 0;
             m_enteredState[(int)PayReadState.LINEPAYEND] = 0;
             m_enteredState[(int)PayReadState.FREEGAME_LINEPAYSTART] = 0;
@@ -148,6 +166,37 @@ namespace ReelImporter
             m_enteredState[(int)PayReadState.FREEGAME_SCATTER_PAYSTART] = 0;
             m_enteredState[(int)PayReadState.FREEGAME_SCATTER_PAYEND] = 0;
             m_arrayDepth = 0;
+        }
+
+        public void EnterSymbols()
+        {
+            m_previousPayType = m_currentPayType;
+            m_currentPayType = BallyPayType.NONE;
+
+            m_enteredState[(int)PayReadState.SYMBOLSTART] = m_arrayDepth;
+
+            m_currentReadState[(int)PayReadState.SYMBOLSTART] = true;
+            m_currentReadState[(int)PayReadState.SYMBOLEND] = false;
+        }
+
+        public void LeaveSymbols()
+        {
+            m_previousPayType = m_currentPayType;
+            m_currentPayType = BallyPayType.NONE;
+
+            m_enteredState[(int)PayReadState.SYMBOLEND] = m_arrayDepth;
+
+            m_currentReadState[(int)PayReadState.SYMBOLSTART] = false;
+            m_currentReadState[(int)PayReadState.SYMBOLEND] = true;
+        }
+
+        public void ResetSymbols()
+        {
+            m_previousPayType = m_currentPayType;
+            m_currentPayType = BallyPayType.NONE;
+
+            m_currentReadState[(int)PayReadState.SYMBOLSTART] = false;
+            m_currentReadState[(int)PayReadState.SYMBOLEND] = false;
         }
 
         public void EnterLinePay()
@@ -290,6 +339,8 @@ namespace ReelImporter
     public enum PayReadState : int
     {
         NONE = 0,
+        SYMBOLSTART,
+        SYMBOLEND,
         LINEPAYSTART,
         LINEPAYEND,
         FREEGAME_LINEPAYSTART,

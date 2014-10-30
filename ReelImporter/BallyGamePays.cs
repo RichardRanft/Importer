@@ -16,6 +16,7 @@ namespace ReelImporter
         private BallyScatterPayData m_scatterPays;
         private BallyFreeLinePayData m_freeLinePays;
         private BallyFreeScatterPayData m_freeScatterPays;
+        private String m_symbolList;
         
         private PayParserState m_parseState;
         private Utils m_util;
@@ -47,8 +48,16 @@ namespace ReelImporter
 
             using (inStream)
             {
-                while ((line = inStream.ReadLine()) != null)
+                while (line != null)
                 {
+                    try
+                    {
+                        line = inStream.ReadLine();
+                    }
+                    catch(ObjectDisposedException ex)
+                    {
+                        break;
+                    }
                     // strip comments
                     if (line.Contains("/"))
                     {
@@ -61,7 +70,14 @@ namespace ReelImporter
                     if (line.Length == 0 || line == "")
                         continue;
 
-                    // look for reels
+                    // look for symbols
+                    if (line == "symbols")
+                    {
+                        m_parseState.EnterSymbols();
+                        m_linePays.Parse(inStream, line, m_parseState);
+                    }
+                    
+                    // look for pays
                     if (line == "linepays")
                     {
                         m_parseState.EnterLinePay();
