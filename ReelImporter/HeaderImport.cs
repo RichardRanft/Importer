@@ -428,7 +428,7 @@ namespace ReelImporter
 
             StreamReader inputFile = new StreamReader(fileName);
             m_gamePays.Parse(inputFile);
-
+            m_gamePays.ExportPays("Wins Combination", target);
             inputFile = new StreamReader(fileName);
             m_gameSet.Parse(inputFile);
             if (m_gameSet.IsValid)
