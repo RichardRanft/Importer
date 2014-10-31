@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,17 +11,38 @@ using Microsoft.Office.Tools.Excel;
 
 namespace ReelImporter
 {
+    public class PaylineSorter : IComparer
+    {
+        int IComparer.Compare(Object a, Object b)
+        {
+            int value = 0; // a and b are equal
+            PaylineDescription first = (PaylineDescription)a;
+            PaylineDescription second = (PaylineDescription)b;
+
+
+            return value;
+        }
+    }
+
     public class BallyLinePayData : BallyPayData
     {
         private List<PaylineDescription> m_linePays;
         private Utils m_util;
         private BallyPayType m_type;
 
-        public override BallyPayType Type
+        public override BallyPayType PayType
         {
             get
             {
                 return m_type;
+            }
+        }
+
+        public List<PaylineDescription> LinePays
+        {
+            get
+            {
+                return m_linePays;
             }
         }
 
@@ -77,23 +99,7 @@ namespace ReelImporter
                                 if (parseState.StateEnteredLevel[(int)PayReadState.LINEPAYSTART] == parseState.ArrayDepth)
                                     parseState.LeaveLinePay();
                             }
-                            else if (parseState.FreeLinePayStart)
-                            {
-                                if (parseState.StateEnteredLevel[(int)PayReadState.FREEGAME_LINEPAYSTART] == parseState.ArrayDepth)
-                                    parseState.LeaveFreeLinePay();
-                            }
-                            else if (parseState.ScatterPayStart)
-                            {
-                                if (parseState.StateEnteredLevel[(int)PayReadState.SCATTER_PAYSTART] == parseState.ArrayDepth)
-                                    parseState.LeaveScatterPay();
-                            }
-                            else if (parseState.FreeScatterPayStart)
-                            {
-                                if (parseState.StateEnteredLevel[(int)PayReadState.FREEGAME_SCATTER_PAYSTART] == parseState.ArrayDepth)
-                                    parseState.LeaveFreeScatterPay();
-                            }
-
-                            continue;
+                            break;
                         }
 
                         // could be end of a reelstop definition, or moving up a level
@@ -105,32 +111,20 @@ namespace ReelImporter
                                 if (parseState.StateEnteredLevel[(int)PayReadState.LINEPAYSTART] == parseState.ArrayDepth)
                                     parseState.LeaveLinePay();
                             }
-                            else if (parseState.FreeLinePayStart)
-                            {
-                                if (parseState.StateEnteredLevel[(int)PayReadState.FREEGAME_LINEPAYSTART] == parseState.ArrayDepth)
-                                    parseState.LeaveFreeLinePay();
-                            }
-                            else if (parseState.ScatterPayStart)
-                            {
-                                if (parseState.StateEnteredLevel[(int)PayReadState.SCATTER_PAYSTART] == parseState.ArrayDepth)
-                                    parseState.LeaveScatterPay();
-                            }
-                            else if (parseState.FreeScatterPayStart)
-                            {
-                                if (parseState.StateEnteredLevel[(int)PayReadState.FREEGAME_SCATTER_PAYSTART] == parseState.ArrayDepth)
-                                    parseState.LeaveFreeScatterPay();
-                            }
-
-                            continue;
+                            break;
                         }
                     }
 
                     payline = new PaylineDescription();
                     payline.Add(line, m_util);
-                    if (parseState.CurrentPayType == BallyPayType.LINEPAY)
+                    if (parseState.LinePayStart)
                     {
                         m_linePays.Add(payline);
+                    }
+                    else
+                    {
                         parseState.ResetLinePay();
+                        break;
                     }
                 }
             }

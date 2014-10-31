@@ -12,7 +12,7 @@ namespace ReelImporter
 {
     public abstract class BallyPayData
     {
-        public abstract BallyPayType Type
+        public abstract BallyPayType PayType
         {
             get;
         }

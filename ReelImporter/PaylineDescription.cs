@@ -18,6 +18,7 @@ namespace ReelImporter
         private int m_minLines;
         private int m_maxLines;
         private int m_validPayLines;
+        private int m_feature;
         private List<String> m_flags;
 
         private bool m_isValid;
@@ -70,6 +71,33 @@ namespace ReelImporter
             }
         }
 
+        public bool IsModifierSet
+        {
+            get
+            {
+                int set = m_stopValues.Count - 1;
+                return m_stopValues[set].IsModifierReel();
+            }
+        }
+
+        public bool HasWild
+        {
+            get
+            {
+                int set = m_stopValues.Count - 1;
+                return m_stopValues[set].HasWild();
+            }
+        }
+
+        public bool IsFreegameSet
+        {
+            get
+            {
+                int set = m_stopValues.Count - 1;
+                return m_stopValues[set].IsFreegameReel();
+            }
+        }
+
         public List<String> Flags
         {
             get
@@ -91,6 +119,7 @@ namespace ReelImporter
             m_minLines = -1;
             m_maxLines = -1;
             m_validPayLines = -1;
+            m_feature = -1;
             m_flags = new List<String>();
             m_isValid = false;
         }
@@ -116,14 +145,15 @@ namespace ReelImporter
                     closeBraceLoc.Add(position);
                 position++;
             }
-            int start, length = 0;
-            String temp;
+            int startSub = 0, start = 0, length = 0;
+            String temp = "";
             ReelDescription desc;
             // grab brace-enclosed sets - these are reel descriptions
             for(int i = 0; i < (openBraceLoc.Count - 1); i++)
             {
-                start = openBraceLoc[i + 1];
-                length = closeBraceLoc[i] - start;
+                startSub = temp.Length;
+                start = openBraceLoc[i + 1] - startSub;
+                length = closeBraceLoc[i] - start - startSub;
                 temp = payline.Substring(start, length);
                 payline = payline.Replace(temp, "");
                 payline.Trim();
@@ -132,6 +162,200 @@ namespace ReelImporter
                 m_stopValues.Add(desc);
             }
             // now grab the payline data
+            // first, comma-separated chunks
+            payline = payline.Replace("\t", "");
+            String[] entries = payline.Split(util.comma);
+            String[] parts;
+            foreach(String entry in entries)
+            {
+                parts = entry.Split('=');
+                if (parts.Length < 2)
+                    continue;
+                addDataEntry(parts[0], parts[1], util);
+                if (!m_isValid)
+                    break;
+            }
+        }
+
+        private void addDataEntry(String field, String value, Utils util)
+        {
+            field = field.Trim();
+            value = value.Trim();
+            switch (field)
+            {
+                case "xbet":
+                    {
+                        try
+                        {
+                            m_betMultiplier = Convert.ToInt32(value);
+                            m_isValid = true;
+                        }
+                        catch
+                        {
+                            m_isValid = false;
+                            m_betMultiplier = -1;
+                        }
+                        break;
+                    }
+                case "feature":
+                    {
+                        try
+                        {
+                            m_feature = Convert.ToInt32(value);
+                            m_isValid = true;
+                        }
+                        catch
+                        {
+                            m_isValid = false;
+                            m_feature = -1;
+                        }
+                        break;
+                    }
+                case "group":
+                    {
+                        try
+                        {
+                            m_group = Convert.ToInt32(value);
+                            m_isValid = true;
+                        }
+                        catch
+                        {
+                            m_isValid = false;
+                            m_group = -1;
+                        }
+                        break;
+                    }
+                case "flags":
+                    {
+                        value = value.Replace(util.openBrace, "");
+                        value = value.Replace(util.closeBrace, "");
+                        String[] flags = value.Split(util.comma);
+
+                        foreach (String flag in flags)
+                        {
+                            m_flags.Add(flag);
+                        }
+                        
+                        m_isValid = true;
+                        break;
+                    }
+                case "validpaylines":
+                    {
+                        try
+                        {
+                            m_validPayLines = Convert.ToInt32(value);
+                            m_isValid = true;
+                        }
+                        catch
+                        {
+                            m_isValid = false;
+                            m_validPayLines = -1;
+                        }
+                        break;
+                    }
+                case "win":
+                    {
+                        try
+                        {
+                            m_win = Convert.ToInt32(value);
+                            m_isValid = true;
+                        }
+                        catch
+                        {
+                            m_isValid = false;
+                            m_win = -1;
+                        }
+                        break;
+                    }
+                case "maxpaylines":
+                    {
+                        try
+                        {
+                            m_maxLines = Convert.ToInt32(value);
+                            m_isValid = true;
+                        }
+                        catch
+                        {
+                            m_isValid = false;
+                            m_maxLines = -1;
+                        }
+                        break;
+                    }
+                case "minpaylines":
+                    {
+                        try
+                        {
+                            m_minLines = Convert.ToInt32(value);
+                            m_isValid = true;
+                        }
+                        catch
+                        {
+                            m_isValid = false;
+                            m_minLines = -1;
+                        }
+                        break;
+                    }
+                case "maxbet":
+                    {
+                        try
+                        {
+                            m_maxBet = Convert.ToInt32(value);
+                            m_isValid = true;
+                        }
+                        catch
+                        {
+                            m_isValid = false;
+                            m_maxBet = -1;
+                        }
+                        break;
+                    }
+                case "minbet":
+                    {
+                        try
+                        {
+                            m_minBet = Convert.ToInt32(value);
+                            m_isValid = true;
+                        }
+                        catch
+                        {
+                            m_isValid = false;
+                            m_minBet = -1;
+                        }
+                        break;
+                    }
+                case "winlevel":
+                    {
+                        try
+                        {
+                            m_winLevel = Convert.ToInt32(value);
+                            m_isValid = true;
+                        }
+                        catch
+                        {
+                            m_isValid = false;
+                            m_winLevel = -1;
+                        }
+                        break;
+                    }
+                case "id":
+                    {
+                        try
+                        {
+                            m_id = Convert.ToInt32(value);
+                            m_isValid = true;
+                        }
+                        catch
+                        {
+                            m_isValid = false;
+                            m_id = -1;
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        break;
+                    }
+            }
         }
 
         public void Clear()

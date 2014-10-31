@@ -16,11 +16,19 @@ namespace ReelImporter
         private Utils m_util;
         private BallyPayType m_type;
 
-        public override BallyPayType Type
+        public override BallyPayType PayType
         {
             get
             {
                 return m_type;
+            }
+        }
+
+        public List<PaylineDescription> LinePays
+        {
+            get
+            {
+                return m_freeScatterPays;
             }
         }
 
@@ -33,14 +41,80 @@ namespace ReelImporter
 
         public override void Parse(StreamReader inStream, String line, PayParserState parseState)
         {
+            bool lineHasOpenBrace = false;
+            bool lineHasCloseBrace = false;
+
             PaylineDescription payline;
-            // ----
-            payline = new PaylineDescription();
-            //payline.Add(line, m_util);
-            if (parseState.CurrentPayType == BallyPayType.FREEGAME_SCATTER_PAY)
+
+            using (inStream)
             {
-                m_freeScatterPays.Add(payline);
-                parseState.ResetFreeScatterPay();
+                while ((line = inStream.ReadLine()) != null)
+                {
+                    // strip comments
+                    if (line.Contains("/"))
+                    {
+                        int pos = line.IndexOf("/");
+                        line = line.Remove(pos);
+                    }
+
+                    line = line.Trim();
+
+                    if (line.Length == 0 || line == "")
+                        continue;
+
+                    // check for braces
+                    if (line == m_util.openBrace)
+                    {
+                        parseState.EnterArrayLevel();
+                        continue;
+                    }
+
+                    lineHasOpenBrace = line.Contains(m_util.openBrace);
+                    lineHasCloseBrace = line.Contains(m_util.closeBrace);
+
+                    if (!lineHasOpenBrace && !lineHasCloseBrace)
+                        continue;
+
+                    if (lineHasCloseBrace)
+                    {
+                        if (line == m_util.closeBrace)
+                        {
+                            parseState.LeaveArrayLevel();
+                            if (parseState.FreeScatterPayStart)
+                            {
+                                if (parseState.StateEnteredLevel[(int)PayReadState.FREEGAME_SCATTER_PAYSTART] == parseState.ArrayDepth)
+                                    parseState.LeaveFreeScatterPay();
+                            }
+
+                            break;
+                        }
+
+                        // could be end of a reelstop definition, or moving up a level
+                        if (line == m_util.arrayEnd)
+                        {
+                            parseState.LeaveArrayLevel();
+                            if (parseState.FreeScatterPayStart)
+                            {
+                                if (parseState.StateEnteredLevel[(int)PayReadState.FREEGAME_SCATTER_PAYSTART] == parseState.ArrayDepth)
+                                    parseState.LeaveFreeScatterPay();
+                            }
+
+                            break;
+                        }
+                    }
+
+                    payline = new PaylineDescription();
+                    payline.Add(line, m_util);
+                    if (parseState.FreeScatterPayStart)
+                    {
+                        m_freeScatterPays.Add(payline);
+                    }
+                    else
+                    {
+                        parseState.ResetFreeScatterPay();
+                        break;
+                    }
+                }
             }
         }
 

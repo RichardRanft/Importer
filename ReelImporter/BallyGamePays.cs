@@ -40,11 +40,55 @@ namespace ReelImporter
             return temp;
         }
 
-        public void Parse(StreamReader inStream)
+        public void Parse(String fileName)
         {
             if (m_parseState == null)
                 m_parseState = new PayParserState();
             
+            String line = "";
+            StreamReader inStream = new StreamReader(fileName);
+
+            while((line = inStream.ReadLine()) != null)
+            {
+                if (line == "linepays")
+                    break;
+            }
+            m_parseState.EnterLinePay();
+            m_linePays.Parse(inStream, line, m_parseState);
+
+            inStream = new StreamReader(fileName);
+            while ((line = inStream.ReadLine()) != null)
+            {
+                if (line == "freegame_linepays")
+                    break;
+            }
+            m_parseState.EnterFreeLinePay();
+            m_freeLinePays.Parse(inStream, line, m_parseState);
+
+            inStream = new StreamReader(fileName);
+            while ((line = inStream.ReadLine()) != null)
+            {
+                if (line == "scatterpays")
+                    break;
+            }
+            m_parseState.EnterScatterPay();
+            m_scatterPays.Parse(inStream, line, m_parseState);
+
+            inStream = new StreamReader(fileName);
+            while ((line = inStream.ReadLine()) != null)
+            {
+                if (line == "freegame_scatterpays")
+                    break;
+            }
+            m_parseState.EnterFreeScatterPay();
+            m_freeScatterPays.Parse(inStream, line, m_parseState);
+        }
+
+        public void LoadSymbols(StreamReader inStream)
+        {
+            if (m_parseState == null)
+                m_parseState = new PayParserState();
+
             String line = "";
 
             using (inStream)
@@ -55,7 +99,7 @@ namespace ReelImporter
                     {
                         line = inStream.ReadLine();
                     }
-                    catch(ObjectDisposedException ex)
+                    catch (ObjectDisposedException ex)
                     {
                         break;
                     }
@@ -76,32 +120,6 @@ namespace ReelImporter
                     {
                         m_parseState.EnterSymbols();
                         parseSymbols(inStream, line);
-                    }
-                    
-                    // look for pays
-                    if (line == "linepays")
-                    {
-                        m_parseState.EnterLinePay();
-                        m_linePays.Parse(inStream, line, m_parseState);
-                    }
-                    if (line == "freegame_linepays")
-                    {
-                        m_parseState.EnterFreeLinePay();
-                        m_freeLinePays.Parse(inStream, line, m_parseState);
-                    }
-                    if (line == "scatterpays")
-                    {
-                        m_parseState.EnterScatterPay();
-                        m_scatterPays.Parse(inStream, line, m_parseState);
-                    }
-                    if (line == "freegame_scatterpays")
-                    {
-                        m_parseState.EnterFreeScatterPay();
-                        m_freeScatterPays.Parse(inStream, line, m_parseState);
-                    }
-                    if (line == "featuredefs")
-                    {
-                        break;
                     }
                 }
             }
@@ -169,13 +187,17 @@ namespace ReelImporter
                         }
                     }
 
-                    if (m_parseState.CurrentPayType == BallyPayType.NONE)
+                    if (m_parseState.SymbolStart)
                     {
                         symbol = line.Replace(m_util.openBrace, "");
                         symbol = symbol.Replace(m_util.closeBrace, "");
                         parts = symbol.Split(m_util.comma);
                         m_symbolList.Add(parts[0]);
+                    }
+                    else
+                    {
                         m_parseState.ResetSymbols();
+                        break;
                     }
                 }
             }
@@ -202,6 +224,7 @@ namespace ReelImporter
             int sheetIndex = getSheetIndex("Wins Combination", targetBook);
             Excel.Worksheet targetSheet = targetBook.Worksheets[sheetIndex];
             
+            // fill in symbol table
             String payStartCell = "R6";
             String cell = payStartCell;
             String col = parseCol(payStartCell);
@@ -219,6 +242,9 @@ namespace ReelImporter
                 col = incrementColumn(cell);
                 cell = col + row.ToString();
             }
+
+            // fill in pay table
+            m_scatterPays.SendToWorksheet(targetBook, targetSheet);
         }
 
         public bool OutputCell(Excel.Worksheet targetSheet, String cell, String value)

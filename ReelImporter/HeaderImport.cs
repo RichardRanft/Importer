@@ -427,8 +427,12 @@ namespace ReelImporter
             String sheetName = trimmedName[end - 1];
 
             StreamReader inputFile = new StreamReader(fileName);
-            m_gamePays.Parse(inputFile);
+            m_gamePays.LoadSymbols(inputFile);
+
+            m_gamePays.Parse(fileName);
+            
             m_gamePays.ExportPays("Wins Combination", target);
+
             inputFile = new StreamReader(fileName);
             m_gameSet.Parse(inputFile);
             if (m_gameSet.IsValid)

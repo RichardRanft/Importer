@@ -29,10 +29,79 @@ namespace ReelImporter
             input = input.Trim();
 
             String[] parts = input.Split(util.comma, 15, StringSplitOptions.RemoveEmptyEntries);
+            String temp = "";
             foreach ( String value in parts )
             {
-                m_reelValues.Add(value);
+                temp = value;
+                if (temp == "XX")
+                    temp = "-";
+                m_reelValues.Add(temp);
             }
+        }
+
+        public bool IsModifierReel()
+        {
+            bool isMod = false;
+            foreach (String stop in m_reelValues)
+            {
+                if(stop.Contains("MC"))
+                {
+                    isMod = true;
+                    break;
+                }
+            }
+
+            return isMod;
+        }
+
+        public bool HasWild()
+        {
+            bool isMod = false;
+            foreach (String stop in m_reelValues)
+            {
+                if (stop.Contains("WC"))
+                {
+                    isMod = true;
+                    break;
+                }
+            }
+
+            return isMod;
+        }
+
+        public bool IsFreegameReel()
+        {
+            bool isFG = false;
+            foreach (String stop in m_reelValues)
+            {
+                if (stop.Contains("FG"))
+                {
+                    isFG = true;
+                    break;
+                }
+            }
+
+            return isFG;
+        }
+
+        public String TrimValue(String value)
+        {
+            String temp = value;
+            if (value.Length > 2)
+            {
+                if (getEndsWithInteger(value))
+                    temp = value.Substring(value.Length - 3, 3);
+                else
+                    temp = value.Substring(value.Length - 2, 2);
+            }
+            if (temp == "XX")
+                temp = "-";
+            return temp;
+        }
+
+        public bool getEndsWithInteger(String data)
+        {
+            return (Char.IsNumber(data.ToCharArray()[data.Length - 1]));
         }
     }
 }
