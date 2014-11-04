@@ -374,5 +374,67 @@ namespace ReelImporter
             m_flags.Clear();
             m_isValid = false;
         }
+
+        public static bool operator <(PaylineDescription pd1, PaylineDescription pd2)
+        {
+            bool reelComp = (pd1.StopValues[pd1.StopValues.Count - 1] == pd2.StopValues[pd2.StopValues.Count - 1]);
+            if (reelComp)
+                return false;
+            reelComp = (pd1.StopValues[pd1.StopValues.Count - 1] > pd2.StopValues[pd2.StopValues.Count - 1]);
+            if (reelComp)
+                return false;
+            return false;
+        }
+
+        public static bool operator >(PaylineDescription pd1, PaylineDescription pd2)
+        {
+            return false;
+        }
+
+        public static bool operator ==(PaylineDescription pd1, PaylineDescription pd2)
+        {
+            return false;
+        }
+
+        public static bool operator !=(PaylineDescription pd1, PaylineDescription pd2)
+        {
+            return false;
+        }
+
+        public override bool Equals(Object o)
+        {
+            try
+            {
+                return (bool)(this == (PaylineDescription)o);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public override string ToString()
+        {
+            string temp = "";
+            foreach(ReelDescription desc in m_stopValues)
+            {
+                temp += desc.ToString() + "\t";
+            }
+
+            temp += m_betMultiplier.ToString() + "\t";
+            temp += m_group.ToString() + "\t";
+            temp += m_id.ToString() + "\t";
+            temp += m_win.ToString() + "\t";
+            temp += m_winLevel.ToString() + "\t";
+            temp += m_minBet.ToString() + "\t";
+            temp += m_maxBet.ToString() + "\t";
+            temp += m_minLines.ToString() + "\t";
+            temp += m_maxLines.ToString() + "\t";
+            temp += m_validPayLines.ToString() + "\t";
+            temp += m_flags.ToString() + "\t";
+            temp += m_isValid.ToString();
+
+            return temp;
+        }
     }
 }

@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
@@ -43,9 +44,10 @@ namespace ReelImporter
             {
                 ribbon.EnableImport(true);
                 importFolder = selectedFolder.Text;
-                if (rbSHFLReels.Checked)
+                String[] fileList = Directory.GetFiles(importFolder, "paytable.cfg");
+                if (fileList.Length < 1)
                     reelType = ReelDataType.SHFL ;
-                if (rbBallyConfig.Checked)
+                else
                     reelType = ReelDataType.BALLY;
                 Globals.Program.currUserKey.SetValue("Folder", selectedFolder.Text);
             }

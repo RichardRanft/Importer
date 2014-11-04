@@ -11,15 +11,72 @@ using Microsoft.Office.Tools.Excel;
 
 namespace ReelImporter
 {
-    public class PaylineSorter : IComparer
+    public class PaylineSorter : IComparer<PaylineDescription>
     {
-        int IComparer.Compare(Object a, Object b)
+        public int Compare(PaylineDescription first, PaylineDescription second)
         {
+            if (first == null)
+                return -1;
+            if (second == null)
+                return 1;
+
             int value = 0; // a and b are equal
-            PaylineDescription first = (PaylineDescription)a;
-            PaylineDescription second = (PaylineDescription)b;
+            int freeSet = 0;
+            int hasWild = 0;
+            int alphaRank = 0;
+            int noHitRank = 0;
+            int winRank = 0;
 
+            //// first, reel type
+            //if (first.IsFreegameSet)
+            //    freeSet = -1;
+            //if (second.IsFreegameSet)
+            //    freeSet = 1;
 
+            // next, wild sets
+            int firstIndex = first.StopValues.Count - 1;
+            int secondIndex = second.StopValues.Count - 1;
+            //if (first.StopValues[firstIndex].HasWild())
+            //    hasWild = -1;
+            //if (second.StopValues[secondIndex].HasWild())
+            //    hasWild = 1;
+
+            // next, alphabetical
+            String currFirst = "";
+            String currSecond = "";
+            ReelDescription firstReels = first.StopValues[firstIndex];
+            ReelDescription secondReels = second.StopValues[secondIndex];
+            currFirst = firstReels.ToString();
+            currSecond = secondReels.ToString(); ;
+            alphaRank = String.Compare(currFirst, currSecond);
+
+            // next pay value
+            //if (first.Win > second.Win)
+            //    winRank = 1;
+            //if (first.Win < second.Win)
+            //    winRank = -1;
+
+            // next, count no hit ("XX" or "-") entries
+            //int noHitA = 0;
+            //int noHitB = 0;
+
+            //foreach( String entry in first.StopValues[firstIndex].Values )
+            //{
+            //    if (entry.Contains("XX") || entry.Contains("-"))
+            //        noHitA++;
+            //}
+
+            //foreach (String entry in second.StopValues[secondIndex].Values)
+            //{
+            //    if (entry.Contains("XX") || entry.Contains("-"))
+            //        noHitB++;
+            //}
+
+            //noHitRank = noHitA - noHitB;
+
+            value = freeSet + hasWild + alphaRank + noHitRank + winRank;
+
+            // x < 0 < y
             return value;
         }
     }
@@ -128,6 +185,9 @@ namespace ReelImporter
                     }
                 }
             }
+
+            IComparer<PaylineDescription> payComparer = new PaylineSorter();
+            m_linePays.Sort(payComparer);
         }
 
         protected override void exportPays(String sheetName, Excel.Workbook targetBook)

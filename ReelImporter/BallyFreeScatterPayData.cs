@@ -116,6 +116,9 @@ namespace ReelImporter
                     }
                 }
             }
+
+            IComparer<PaylineDescription> payComparer = new PaylineSorter();
+            m_freeScatterPays.Sort(payComparer);
         }
 
         protected override void exportPays(String sheetName, Excel.Workbook targetBook)

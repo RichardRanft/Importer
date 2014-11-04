@@ -33,10 +33,6 @@
             this.folderBrowse = new System.Windows.Forms.Button();
             this.folderSelectOK = new System.Windows.Forms.Button();
             this.reelFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.rbSHFLReels = new System.Windows.Forms.RadioButton();
-            this.rbBallyConfig = new System.Windows.Forms.RadioButton();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // selectedFolder
@@ -76,54 +72,17 @@
             this.folderSelectOK.UseVisualStyleBackColor = true;
             this.folderSelectOK.Click += new System.EventHandler(this.folderSelectOK_Click);
             // 
-            // rbSHFLReels
-            // 
-            this.rbSHFLReels.AutoSize = true;
-            this.rbSHFLReels.Checked = true;
-            this.rbSHFLReels.Location = new System.Drawing.Point(6, 19);
-            this.rbSHFLReels.Name = "rbSHFLReels";
-            this.rbSHFLReels.Size = new System.Drawing.Size(82, 17);
-            this.rbSHFLReels.TabIndex = 4;
-            this.rbSHFLReels.TabStop = true;
-            this.rbSHFLReels.Text = "SHFL Reels";
-            this.rbSHFLReels.UseVisualStyleBackColor = true;
-            // 
-            // rbBallyConfig
-            // 
-            this.rbBallyConfig.AutoSize = true;
-            this.rbBallyConfig.Location = new System.Drawing.Point(95, 19);
-            this.rbBallyConfig.Name = "rbBallyConfig";
-            this.rbBallyConfig.Size = new System.Drawing.Size(80, 17);
-            this.rbBallyConfig.TabIndex = 5;
-            this.rbBallyConfig.TabStop = true;
-            this.rbBallyConfig.Text = "Bally Config";
-            this.rbBallyConfig.UseVisualStyleBackColor = true;
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.rbSHFLReels);
-            this.groupBox1.Controls.Add(this.rbBallyConfig);
-            this.groupBox1.Location = new System.Drawing.Point(13, 68);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(421, 46);
-            this.groupBox1.TabIndex = 6;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Reel Type";
-            // 
             // FolderSelection
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(527, 126);
-            this.Controls.Add(this.groupBox1);
+            this.ClientSize = new System.Drawing.Size(527, 102);
             this.Controls.Add(this.folderSelectOK);
             this.Controls.Add(this.folderBrowse);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.selectedFolder);
             this.Name = "FolderSelection";
             this.Text = "Reel Folder Selection";
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -141,9 +100,5 @@
             selectedFolder.Text = folder;
             reelFolderBrowserDialog.SelectedPath = folder;
         }
-
-        private System.Windows.Forms.RadioButton rbSHFLReels;
-        private System.Windows.Forms.RadioButton rbBallyConfig;
-        private System.Windows.Forms.GroupBox groupBox1;
     }
 }

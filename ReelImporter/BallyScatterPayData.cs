@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.Drawing;
 using Excel = Microsoft.Office.Interop.Excel;
 using Office = Microsoft.Office.Core;
 using Microsoft.Office.Tools.Excel;
@@ -15,6 +16,7 @@ namespace ReelImporter
         private List<PaylineDescription> m_scatterPays;
         private Utils m_util;
         private BallyPayType m_type;
+        private int m_rowCount;
 
         public override BallyPayType PayType
         {
@@ -114,11 +116,20 @@ namespace ReelImporter
                     }
                 }
             }
+
+            IComparer<PaylineDescription> payComparer = new PaylineSorter();
+            m_scatterPays.Sort(payComparer);
+        }
+
+        protected override void exportPays(String sheetName, Excel.Workbook targetBook)
+        {
+
         }
 
         public void SendToWorksheet(Excel.Workbook targetBook, Excel.Worksheet targetSheet)
         {
             Globals.Program.Application.ScreenUpdating = false;
+            targetSheet.Activate();
             // reel entries A5~E5, pay at M5
             String col = "A";
             int row = 5;
@@ -129,7 +140,9 @@ namespace ReelImporter
             String val = "";
             foreach(PaylineDescription line in m_scatterPays)
             {
-                if (line.IsFreegameSet || line.HasWild)
+                if (line.Win <= 0)
+                    continue;
+                if (line.IsFreegameSet || line.IsModifierSet || line.HasWild)
                     //continue;
                     if (line.IsFreegameSet || line.IsModifierSet)
                     trim = true;
@@ -152,72 +165,91 @@ namespace ReelImporter
                 outputCell(targetSheet, payCell, line.Win.ToString());
                 row++;
             }
-            Globals.Program.Application.ScreenUpdating = true;
-        }
-
-        private bool outputCell(Excel.Worksheet targetSheet, String cell, String value)
-        {
-            bool result = true;
-            try
+            row = 5;
+            foreach (PaylineDescription line in m_scatterPays)
             {
-                // try, because it might fail
-                targetSheet.Cells.Range[cell, Type.Missing].Value2 = value;
-            }
-            catch (Exception e)
-            {
-                System.Windows.Forms.MessageBox.Show("Error code:\n" + e.Message, "File Import Error", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
-                result = false;
-            }
-            return result;
-        }
+                if (line.Win <= 0)
+                    continue;
+                if (line.IsFreegameSet || line.IsModifierSet || line.HasWild)
+                    //continue;
+                    if (line.IsFreegameSet || line.IsModifierSet)
+                        trim = true;
 
-        protected override void exportPays(String sheetName, Excel.Workbook targetBook)
-        {
-
-        }
-
-        private String incrementColumn(String current)
-        {
-            String nextColumn = parseCol(current);
-            if (nextColumn.Length < 2)
-            {
-                char temp = nextColumn[0];
-                temp++;
-                if (temp <= 'Z')
-                    nextColumn = temp.ToString();
-                else
+                col = "H";
+                foreach (String stop in line.StopValues[stopSet].Values)
                 {
-                    nextColumn = "AA";
+                    cell = col + row.ToString();
+                    if (line.StopValues[stopSet].Values.Count > 5)
+                        break;
+                    if (trim)
+                        val = line.StopValues[stopSet].TrimValue(stop);
+                    else
+                        val = stop;
+                    outputCell(targetSheet, cell, val);
+
+                    col = incrementColumn(col);
+                }
+                row++;
+            }
+            m_rowCount = row;
+
+            Globals.Program.Application.ScreenUpdating = true;
+            
+            updatePayLinks(targetBook);
+        }
+
+        private void updatePayLinks(Excel.Workbook book)
+        {
+            // need to update all links to point to the new target worksheet.
+            // Notes:
+            // Reel columns start at Q8
+            // This also needs to update all links to point to the new target worksheet.
+            Globals.Program.Application.ScreenUpdating = false;
+
+            String paySheetName = "Pays";
+            String col = "A";
+            String cell = "";
+            String payCell = "";
+            String targetCell = "L6";
+            String payTargetCell = "X6";
+            String targetCol = "L";
+            int row = 5;
+            String equation = "='Wins Combination'!";
+            String val = "='Wins Combination'!A5";
+            int stopSet = m_scatterPays[0].StopValues.Count - 1;
+            Excel.Worksheet paySheet = null;
+            // find the parsed reel worksheet
+            int sheetIndex = getSheetIndex(book, paySheetName);
+            if (sheetIndex > 0)
+            {
+                paySheet = book.Worksheets[sheetIndex];
+                if (paySheet != null)
+                    paySheet.Select();
+                // copy the parsed reels to the pays sheet
+                foreach (PaylineDescription line in m_scatterPays)
+                {
+                    if (line.Win <= 0)
+                        continue;
+
+                    col = "A";
+                    targetCol = "L";
+                    foreach (String stop in line.StopValues[stopSet].Values)
+                    {
+                        cell = col + row.ToString();
+                        targetCell = targetCol + (row + 1).ToString();
+                        val = equation + cell;
+                        setCellFormula(paySheet, targetCell, val);
+
+                        col = incrementColumn(col);
+                        targetCol = incrementColumn(targetCol);
+                    }
+                    payCell = "$N$" + row.ToString();
+                    payTargetCell = "X" + (row + 1).ToString();
+                    setCellFormula(paySheet, payTargetCell, equation + payCell);
+                    row++;
                 }
             }
-            else
-            {
-                char temp = nextColumn[1];
-                temp++;
-                nextColumn = "A" + temp.ToString();
-            }
-            return nextColumn;
-        }
-
-        private String parseCol(String data)
-        {
-            System.Text.RegularExpressions.Regex digits = new System.Text.RegularExpressions.Regex(@"[\d]");
-            return digits.Replace(data, "");
-        }
-
-        private int parseRow(String data)
-        {
-            System.Text.RegularExpressions.Regex digits = new System.Text.RegularExpressions.Regex(@"[^\d]");
-            int value = 0;
-            try
-            {
-                value = System.Convert.ToInt32(digits.Replace(data, ""));
-            }
-            catch (Exception e)
-            {
-                value = 0;
-            }
-            return value;
+            Globals.Program.Application.ScreenUpdating = true;
         }
     }
 }
