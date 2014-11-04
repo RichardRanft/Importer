@@ -129,6 +129,7 @@ namespace ReelImporter
         {
             bool lineHasOpenBrace = false;
             bool lineHasCloseBrace = false;
+            bool lineHasComma = false;
             String[] parts;
             String symbol = "";
 
@@ -157,8 +158,9 @@ namespace ReelImporter
 
                     lineHasOpenBrace = line.Contains(m_util.openBrace);
                     lineHasCloseBrace = line.Contains(m_util.closeBrace);
+                    lineHasComma = line.Contains(","); // some paytable.cfg files don't use multi-value symbols so no braces
 
-                    if (!lineHasOpenBrace && !lineHasCloseBrace)
+                    if (!lineHasOpenBrace && !lineHasCloseBrace && !lineHasComma)
                         continue;
 
                     if (lineHasCloseBrace)
@@ -244,7 +246,10 @@ namespace ReelImporter
             }
 
             // fill in pay table
-            m_scatterPays.SendToWorksheet(targetBook, targetSheet);
+            if (m_linePays.LinePays.Count > 1)
+                m_linePays.SendToWorksheet(targetBook, targetSheet);
+            else
+                m_scatterPays.SendToWorksheet(targetBook, targetSheet);
         }
 
         public bool OutputCell(Excel.Worksheet targetSheet, String cell, String value)

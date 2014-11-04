@@ -179,7 +179,12 @@ namespace ReelImporter
 
         private void addDataEntry(String field, String value, Utils util)
         {
+            field = field.Replace('{', ' ');
+            field = field.Replace('}', ' ');
             field = field.Trim();
+
+            value = value.Replace('{', ' ');
+            value = value.Replace('}', ' ');
             value = value.Trim();
             switch (field)
             {

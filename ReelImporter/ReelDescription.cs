@@ -39,7 +39,7 @@ namespace ReelImporter
             String[] parts = input.Split(util.comma, 15, StringSplitOptions.RemoveEmptyEntries);
             foreach ( String value in parts )
             {
-                m_reelValues.Add(value);
+                m_reelValues.Add(value.Trim());
             }
         }
 

@@ -86,6 +86,7 @@ namespace ReelImporter
         private List<PaylineDescription> m_linePays;
         private Utils m_util;
         private BallyPayType m_type;
+        private int m_rowCount;
 
         public override BallyPayType PayType
         {
@@ -108,6 +109,7 @@ namespace ReelImporter
             m_util = new Utils();
             m_linePays = new List<PaylineDescription>();
             m_type = BallyPayType.LINEPAY;
+            m_rowCount = 0;
         }
 
         public override void Parse(StreamReader inStream, String line, PayParserState parseState)
@@ -153,7 +155,7 @@ namespace ReelImporter
                             parseState.LeaveArrayLevel();
                             if (parseState.LinePayStart)
                             {
-                                if (parseState.StateEnteredLevel[(int)PayReadState.LINEPAYSTART] == parseState.ArrayDepth)
+                                if (parseState.StateEnteredLevel[(int)PayReadState.SCATTER_PAYSTART] == parseState.ArrayDepth)
                                     parseState.LeaveLinePay();
                             }
                             break;
@@ -165,7 +167,7 @@ namespace ReelImporter
                             parseState.LeaveArrayLevel();
                             if (parseState.LinePayStart)
                             {
-                                if (parseState.StateEnteredLevel[(int)PayReadState.LINEPAYSTART] == parseState.ArrayDepth)
+                                if (parseState.StateEnteredLevel[(int)PayReadState.SCATTER_PAYSTART] == parseState.ArrayDepth)
                                     parseState.LeaveLinePay();
                             }
                             break;
@@ -193,6 +195,140 @@ namespace ReelImporter
         protected override void exportPays(String sheetName, Excel.Workbook targetBook)
         {
 
+        }
+
+        public void SendToWorksheet(Excel.Workbook targetBook, Excel.Worksheet targetSheet)
+        {
+            Globals.Program.Application.ScreenUpdating = false;
+            targetSheet.Activate();
+            // reel entries A5~E5, pay at M5
+            String col = "A";
+            int row = 5;
+            String cell = col + row.ToString();
+            String payCell = "N" + row.ToString();
+            int stopSet = m_linePays[0].StopValues.Count - 1;
+            bool trim = true;
+            String val = "";
+            foreach (PaylineDescription line in m_linePays)
+            {
+                if (line.Win <= 0)
+                    continue;
+                if (line.IsFreegameSet || line.IsModifierSet || line.HasWild)
+                    //continue;
+                    if (line.IsFreegameSet || line.IsModifierSet)
+                        trim = true;
+
+                col = "A";
+                foreach (String stop in line.StopValues[stopSet].Values)
+                {
+                    cell = col + row.ToString();
+                    if (line.StopValues[stopSet].Values.Count > 5)
+                        break;
+                    if (trim)
+                        val = line.StopValues[stopSet].TrimValue(stop);
+                    else
+                        val = stop;
+
+                    if (val == "XX")
+                        val = "-";
+
+                    outputCell(targetSheet, cell, val);
+
+                    col = incrementColumn(col);
+                }
+                payCell = "N" + row.ToString();
+                outputCell(targetSheet, payCell, line.Win.ToString());
+                row++;
+            }
+            row = 5;
+            foreach (PaylineDescription line in m_linePays)
+            {
+                if (line.Win <= 0)
+                    continue;
+                if (line.IsFreegameSet || line.IsModifierSet || line.HasWild)
+                    //continue;
+                    if (line.IsFreegameSet || line.IsModifierSet)
+                        trim = true;
+
+                col = "H";
+                foreach (String stop in line.StopValues[stopSet].Values)
+                {
+                    cell = col + row.ToString();
+                    if (line.StopValues[stopSet].Values.Count > 5)
+                        break;
+                    if (trim)
+                        val = line.StopValues[stopSet].TrimValue(stop);
+                    else
+                        val = stop;
+
+                    if (val == "XX")
+                        val = "-";
+
+                    outputCell(targetSheet, cell, val);
+
+                    col = incrementColumn(col);
+                }
+                row++;
+            }
+            m_rowCount = row;
+
+            Globals.Program.Application.ScreenUpdating = true;
+
+            updatePayLinks(targetBook);
+        }
+
+        private void updatePayLinks(Excel.Workbook book)
+        {
+            // need to update all links to point to the new target worksheet.
+            // Notes:
+            // Reel columns start at Q8
+            // This also needs to update all links to point to the new target worksheet.
+            Globals.Program.Application.ScreenUpdating = false;
+
+            String paySheetName = "Pays";
+            String col = "A";
+            String cell = "";
+            String payCell = "";
+            String targetCell = "L6";
+            String payTargetCell = "X6";
+            String targetCol = "L";
+            int row = 5;
+            String equation = "='Wins Combination'!";
+            String val = "='Wins Combination'!A5";
+            int stopSet = m_linePays[0].StopValues.Count - 1;
+            Excel.Worksheet paySheet = null;
+            // find the parsed reel worksheet
+            int sheetIndex = getSheetIndex(book, paySheetName);
+            if (sheetIndex > 0)
+            {
+                paySheet = book.Worksheets[sheetIndex];
+                if (paySheet != null)
+                    paySheet.Select();
+                // copy the parsed reels to the pays sheet
+                foreach (PaylineDescription line in m_linePays)
+                {
+                    if (line.Win <= 0)
+                        continue;
+
+                    col = "A";
+                    targetCol = "L";
+                    foreach (String stop in line.StopValues[stopSet].Values)
+                    {
+                        cell = col + row.ToString();
+                        targetCell = targetCol + (row + 1).ToString();
+                        val = equation + cell;
+                        setCellFormula(paySheet, targetCell, val);
+
+                        col = incrementColumn(col);
+                        targetCol = incrementColumn(targetCol);
+                    }
+                    payCell = "$N$" + row.ToString();
+                    payTargetCell = "X" + (row + 1).ToString();
+                    setCellFormula(paySheet, payTargetCell, equation + payCell);
+                    row++;
+                }
+            }
+            Globals.Program.Application.ScreenUpdating = true;
         }
     }
 }
