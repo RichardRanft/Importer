@@ -143,8 +143,6 @@ namespace ReelImporter
                 if (line.Win <= 0)
                     continue;
                 if (line.IsFreegameSet || line.IsModifierSet || line.HasWild)
-                    //continue;
-                    if (line.IsFreegameSet || line.IsModifierSet)
                     trim = true;
 
                 col = "A";
@@ -171,8 +169,6 @@ namespace ReelImporter
                 if (line.Win <= 0)
                     continue;
                 if (line.IsFreegameSet || line.IsModifierSet || line.HasWild)
-                    //continue;
-                    if (line.IsFreegameSet || line.IsModifierSet)
                         trim = true;
 
                 col = "H";

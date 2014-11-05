@@ -211,6 +211,19 @@ namespace ReelImporter
             }
         }
 
+        public override int GetHashCode()
+        {
+            int numVal = 0;
+            foreach(String s in m_reelValues)
+            {
+                foreach (Char c in s.ToCharArray())
+                {
+                    numVal += c.GetHashCode();
+                }
+            }
+            return numVal;
+        }
+
         public override string ToString()
         {
             string temp = "";

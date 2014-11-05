@@ -228,10 +228,6 @@ namespace ReelImporter
                         val = line.StopValues[stopSet].TrimValue(stop);
                     else
                         val = stop;
-
-                    if (val == "XX")
-                        val = "-";
-
                     outputCell(targetSheet, cell, val);
 
                     col = incrementColumn(col);
@@ -260,10 +256,6 @@ namespace ReelImporter
                         val = line.StopValues[stopSet].TrimValue(stop);
                     else
                         val = stop;
-
-                    if (val == "XX")
-                        val = "-";
-
                     outputCell(targetSheet, cell, val);
 
                     col = incrementColumn(col);
