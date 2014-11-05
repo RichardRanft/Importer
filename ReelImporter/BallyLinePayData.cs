@@ -170,6 +170,7 @@ namespace ReelImporter
             // reel entries A5~E5, pay at M5
             String col = "A";
             int row = 5;
+            int stopCount = 0;
             String cell = col + row.ToString();
             String payCell = "N" + row.ToString();
             int stopSet = m_linePays[0].StopValues.Count - 1;
@@ -177,7 +178,7 @@ namespace ReelImporter
             String val = "";
             foreach (PaylineDescription line in m_linePays)
             {
-                if (line.Win < 0)
+                if (line.Win <= 0)
                     continue;
                 if (line.IsFreegameSet || line.IsModifierSet || line.HasWild)
                     //continue;
@@ -185,11 +186,13 @@ namespace ReelImporter
                         trim = true;
 
                 col = "A";
+                stopCount = 0;
                 foreach (String stop in line.StopValues[stopSet].Values)
                 {
                     cell = col + row.ToString();
-                    if (line.StopValues[stopSet].Values.Count > 5)
+                    if (stopCount == 5)
                         break;
+                    stopCount++;
                     if (trim)
                         val = line.StopValues[stopSet].TrimValue(stop);
                     else
@@ -205,7 +208,7 @@ namespace ReelImporter
             row = 5;
             foreach (PaylineDescription line in m_linePays)
             {
-                if (line.Win < 0)
+                if (line.Win <= 0)
                     continue;
                 if (line.IsFreegameSet || line.IsModifierSet || line.HasWild)
                     //continue;
@@ -213,11 +216,13 @@ namespace ReelImporter
                         trim = true;
 
                 col = "H";
+                stopCount = 0;
                 foreach (String stop in line.StopValues[stopSet].Values)
                 {
                     cell = col + row.ToString();
-                    if (line.StopValues[stopSet].Values.Count > 5)
+                    if (stopCount == 5)
                         break;
+                    stopCount++;
                     if (trim)
                         val = line.StopValues[stopSet].TrimValue(stop);
                     else
@@ -251,6 +256,7 @@ namespace ReelImporter
             String payTargetCell = "X6";
             String targetCol = "L";
             int row = 5;
+            int stopCount = 0;
             String equation = "='Wins Combination'!";
             String val = "='Wins Combination'!A5";
             int stopSet = m_linePays[0].StopValues.Count - 1;
@@ -265,13 +271,17 @@ namespace ReelImporter
                 // copy the parsed reels to the pays sheet
                 foreach (PaylineDescription line in m_linePays)
                 {
-                    if (line.Win < 0)
+                    if (line.Win <= 0)
                         continue;
 
                     col = "A";
                     targetCol = "L";
+                    stopCount = 0;
                     foreach (String stop in line.StopValues[stopSet].Values)
                     {
+                        if (stopCount == 5)
+                            break;
+                        stopCount++;
                         cell = col + row.ToString();
                         targetCell = targetCol + (row + 1).ToString();
                         val = equation + cell;

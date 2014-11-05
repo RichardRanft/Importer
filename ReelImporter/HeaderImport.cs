@@ -431,7 +431,7 @@ namespace ReelImporter
 
             m_gamePays.Parse(fileName);
 
-            m_gamePays.Dump();
+            //m_gamePays.Dump();
             
             m_gamePays.ExportPays("Wins Combination", target);
 
