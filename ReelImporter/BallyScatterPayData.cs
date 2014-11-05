@@ -140,7 +140,7 @@ namespace ReelImporter
             String val = "";
             foreach(PaylineDescription line in m_scatterPays)
             {
-                if (line.Win <= 0)
+                if (line.Win < 0)
                     continue;
                 if (line.IsFreegameSet || line.IsModifierSet || line.HasWild)
                     trim = true;
@@ -166,7 +166,7 @@ namespace ReelImporter
             row = 5;
             foreach (PaylineDescription line in m_scatterPays)
             {
-                if (line.Win <= 0)
+                if (line.Win < 0)
                     continue;
                 if (line.IsFreegameSet || line.IsModifierSet || line.HasWild)
                         trim = true;
@@ -224,7 +224,7 @@ namespace ReelImporter
                 // copy the parsed reels to the pays sheet
                 foreach (PaylineDescription line in m_scatterPays)
                 {
-                    if (line.Win <= 0)
+                    if (line.Win < 0)
                         continue;
 
                     col = "A";

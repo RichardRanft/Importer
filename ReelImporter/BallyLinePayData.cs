@@ -27,19 +27,9 @@ namespace ReelImporter
             int noHitRank = 0;
             int winRank = 0;
 
-            //// first, reel type
-            //if (first.IsFreegameSet)
-            //    freeSet = -1;
-            //if (second.IsFreegameSet)
-            //    freeSet = 1;
-
             // next, wild sets
             int firstIndex = first.StopValues.Count - 1;
             int secondIndex = second.StopValues.Count - 1;
-            //if (first.StopValues[firstIndex].HasWild())
-            //    hasWild = -1;
-            //if (second.StopValues[secondIndex].HasWild())
-            //    hasWild = 1;
 
             // next, alphabetical
             String currFirst = "";
@@ -49,30 +39,6 @@ namespace ReelImporter
             currFirst = firstReels.ToString();
             currSecond = secondReels.ToString(); ;
             alphaRank = String.Compare(currFirst, currSecond);
-
-            // next pay value
-            //if (first.Win > second.Win)
-            //    winRank = 1;
-            //if (first.Win < second.Win)
-            //    winRank = -1;
-
-            // next, count no hit ("XX" or "-") entries
-            //int noHitA = 0;
-            //int noHitB = 0;
-
-            //foreach( String entry in first.StopValues[firstIndex].Values )
-            //{
-            //    if (entry.Contains("XX") || entry.Contains("-"))
-            //        noHitA++;
-            //}
-
-            //foreach (String entry in second.StopValues[secondIndex].Values)
-            //{
-            //    if (entry.Contains("XX") || entry.Contains("-"))
-            //        noHitB++;
-            //}
-
-            //noHitRank = noHitA - noHitB;
 
             value = freeSet + hasWild + alphaRank + noHitRank + winRank;
 
@@ -211,7 +177,7 @@ namespace ReelImporter
             String val = "";
             foreach (PaylineDescription line in m_linePays)
             {
-                if (line.Win <= 0)
+                if (line.Win < 0)
                     continue;
                 if (line.IsFreegameSet || line.IsModifierSet || line.HasWild)
                     //continue;
@@ -239,7 +205,7 @@ namespace ReelImporter
             row = 5;
             foreach (PaylineDescription line in m_linePays)
             {
-                if (line.Win <= 0)
+                if (line.Win < 0)
                     continue;
                 if (line.IsFreegameSet || line.IsModifierSet || line.HasWild)
                     //continue;
@@ -299,7 +265,7 @@ namespace ReelImporter
                 // copy the parsed reels to the pays sheet
                 foreach (PaylineDescription line in m_linePays)
                 {
-                    if (line.Win <= 0)
+                    if (line.Win < 0)
                         continue;
 
                     col = "A";

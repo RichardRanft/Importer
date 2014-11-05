@@ -324,5 +324,32 @@ namespace ReelImporter
             }
             return 0;
         }
+
+        public void Dump()
+        {
+            String path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            using (StreamWriter outfile = new StreamWriter(path + @"\reeldump.txt"))
+            {
+                foreach (PaylineDescription line in m_linePays.LinePays)
+                {
+                    outfile.WriteLine(line.ToString());
+                }
+                outfile.WriteLine("// -----------");
+                foreach (PaylineDescription line in m_freeLinePays.LinePays)
+                {
+                    outfile.WriteLine(line.ToString());
+                }
+                outfile.WriteLine("// -----------");
+                foreach (PaylineDescription line in m_scatterPays.LinePays)
+                {
+                    outfile.WriteLine(line.ToString());
+                }
+                outfile.WriteLine("// -----------");
+                foreach (PaylineDescription line in m_freeScatterPays.LinePays)
+                {
+                    outfile.WriteLine(line.ToString());
+                }
+            }
+        }
     }
 }

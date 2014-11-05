@@ -112,7 +112,7 @@ namespace ReelImporter
             m_betMultiplier = -1;
             m_group = -1;
             m_id = -1;
-            m_win = -1;
+            m_win = 0;
             m_winLevel = -1;
             m_minBet = -1;
             m_maxBet = -1;
@@ -369,7 +369,7 @@ namespace ReelImporter
             m_betMultiplier = -1;
             m_group = -1;
             m_id = -1;
-            m_win = -1;
+            m_win = 0;
             m_winLevel = -1;
             m_minBet = -1;
             m_maxBet = -1;
@@ -447,7 +447,10 @@ namespace ReelImporter
             temp += m_minLines.ToString() + "\t";
             temp += m_maxLines.ToString() + "\t";
             temp += m_validPayLines.ToString() + "\t";
-            temp += m_flags.ToString() + "\t";
+            foreach (String s in m_flags)
+            {
+                temp += s + "\t";
+            }
             temp += m_isValid.ToString();
 
             return temp;
