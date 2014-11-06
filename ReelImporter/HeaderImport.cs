@@ -431,8 +431,10 @@ namespace ReelImporter
 
             m_gamePays.Parse(fileName);
 
-            //m_gamePays.Dump();
-            
+#if DEBUG
+            m_gamePays.Dump();
+#endif
+   
             m_gamePays.ExportPays("Wins Combination", target);
 
             inputFile = new StreamReader(fileName);
